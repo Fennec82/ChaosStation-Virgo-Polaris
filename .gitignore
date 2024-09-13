@@ -13,11 +13,11 @@ vchat.db*
 *.pid
 cfg/
 
-#Ignore the data folder/symlink itself.  This is very important if you are using VGS
-/data
+#Ignore the data folder/symlink itself.  This is very important if you are using VGS #Add datafolder, we're using TGS
+#/data
 
 #Ignore everything in datafolder and subdirectories
-/data/**/*
+#/data/**/*
 /tmp/**/*
 
 #Visual studio stuff

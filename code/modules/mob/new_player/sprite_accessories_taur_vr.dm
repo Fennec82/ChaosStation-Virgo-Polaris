@@ -1107,8 +1107,8 @@
 	name = "Kitsune (Taur)"
 	icon_state = "kitsune"
 
-/*
-/datum/sprite_accessory/tail/taur/teppi			// Mostly used as example/template/test subject as to how you use the 'big' taur sprites. Pls give it better icons before uncommenting...
+
+/datum/sprite_accessory/tail/taur/teppi			// Mostly used as example/template/test subject as to how you use the 'big' taur sprites. Pls give it better icons before uncommenting... //Re-adding anyway - ArrhythmiaV
 	name = "Teppi (Taur)"
 	icon_state = "teppi_s"
 	clip_mask_icon = 'icons/mob/vore/taurs128x64_vr.dmi'
@@ -1118,7 +1118,7 @@
 	offset_x = -32
 	offset_y = -11
 	mob_offset_y = 11
-*/
+
 
 //RS ADD START
 

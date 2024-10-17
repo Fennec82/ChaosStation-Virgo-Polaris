@@ -45,7 +45,7 @@
 		var/obj/item/weapon/weldingtool/WT = W.get_welder()
 
 		if(can_weld == FALSE)
-			to_chat("You can't reform these into their original components.")
+			to_chat(user, "You can't reform these into their original components.")
 			return
 
 		if(get_amount() < 4)
@@ -255,6 +255,12 @@
 	name = "maint techfloor tile"
 	singular_name = "maint techfloor tile"
 	icon_state = "techtile_maint"
+	no_variants = FALSE
+
+/obj/item/stack/tile/floor/steelgrip
+	name = "steel hi-grip tile"
+	singular_name = "steel hi-grip tile"
+	icon_state = "steeltile_grip"
 	no_variants = FALSE
 
 /obj/item/stack/tile/floor/steel_dirty

@@ -65,6 +65,8 @@
 	else
 		if(istype(I, /obj/item/stack/nanopaste))
 			var/choice = tgui_alert(usr, "What do you want to do with the nanopaste?","Radiometric Scanner",list("Scan nanopaste","Fix seal integrity"))
+			if(!choice)
+				return
 			if(choice == "Fix seal integrity")
 				var/obj/item/stack/nanopaste/N = I
 				var/amount_used = min(N.get_amount(), 10 - scanner_seal_integrity / 10)
@@ -76,6 +78,8 @@
 			if(!G.is_open_container())
 				return
 			var/choice = tgui_alert(usr, "What do you want to do with the container?","Radiometric Scanner",list("Add coolant","Empty coolant","Scan container"))
+			if(!choice)
+				return
 			if(choice == "Add coolant")
 				var/amount_transferred = min(src.reagents.maximum_volume - src.reagents.total_volume, G.reagents.total_volume)
 				var/trans = G.reagents.trans_to_obj(src, amount_transferred)
@@ -268,16 +272,16 @@
 			//emergency stop if seal integrity reaches 0
 			if(scanner_seal_integrity <= 0 || (scanner_temperature >= 1273 && !rad_shield))
 				stop_scanning()
-				src.visible_message(span_blue("\icon[src][bicon(src)] buzzes unhappily. It has failed mid-scan!"), 2)
+				src.visible_message(span_blue("[icon2html(src,viewers(src))] buzzes unhappily. It has failed mid-scan!"), 2)
 
 			if(prob(5))
-				src.visible_message(span_blue("\icon[src][bicon(src)] [pick("whirrs","chuffs","clicks")][pick(" excitedly"," energetically"," busily")]."), 2)
+				src.visible_message(span_blue("[icon2html(src,viewers(src))] [pick("whirrs","chuffs","clicks")][pick(" excitedly"," energetically"," busily")]."), 2)
 	else
 		//gradually cool down over time
 		if(scanner_temperature > 0)
 			scanner_temperature = max(scanner_temperature - 5 - 10 * rand(), 0)
 		if(prob(0.75))
-			src.visible_message(span_blue("\icon[src][bicon(src)] [pick("plinks","hisses")][pick(" quietly"," softly"," sadly"," plaintively")]."), 2)
+			src.visible_message(span_blue("[icon2html(src,viewers(src))] [pick("plinks","hisses")][pick(" quietly"," softly"," sadly"," plaintively")]."), 2)
 			playsound(src, 'sound/effects/ding.ogg', 25)
 	last_process_worldtime = world.time
 
@@ -296,7 +300,7 @@
 		used_coolant = 0
 
 /obj/machinery/radiocarbon_spectrometer/proc/complete_scan()
-	src.visible_message(span_blue("\icon[src][bicon(src)] makes an insistent chime."), 2)
+	src.visible_message(span_blue("[icon2html(src,viewers(src))] makes an insistent chime."), 2)
 
 	if(scanned_item)
 		//create report

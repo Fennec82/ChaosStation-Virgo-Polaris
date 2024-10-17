@@ -22,14 +22,19 @@
 #define span_srvradio(str) ("<span class='srvradio'>" + str + "</span>")
 #define span_expradio(str) ("<span class='expradio'>" + str + "</span>")
 
+#define span_binary(str) ("<span class='binarysay'>" + str + "</span>")
+#define span_hivemind(str) ("<span class='hivemind'>" + str + "</span>")
+
 #define span_name(str) ("<span class='name'>" + str + "</span>")
 #define span_say(str) ("<span class='say'>" + str + "</span>")
 #define span_alert(str) ("<span class='alert'>" + str + "</span>")
 #define span_ghostalert(str) ("<span class='ghostalert'>" + str + "</span>")
+#define span_npc_say(str) ("<span class='npcsay'>" + str + "</span>")
 
 
 #define span_emote(str) ("<span class='emote'>" + str + "</span>")
 #define span_emote_subtle(str) ("<span class='emotesubtle'>" + str + "</span>")
+#define span_npc_emote(str) ("<span class='npcemote'>" + str + "</span>")
 
 #define span_attack(str) ("<span class='attack'>" + str + "</span>")
 #define span_moderate(str) ("<span class='moderate'>" + str + "</span>")
@@ -46,6 +51,12 @@
 #define span_cult(str) ("<span class='cult'>" + str + "</span>")
 
 #define span_reflex_shoot(str) ("<span class='reflex_shoot'>" + str + "</span>")
+
+/* Vore messages */
+
+#define span_vdanger(str) ("<span class='vdanger'>" + str + "</span>")
+#define span_vwarning(str) ("<span class='vwarning'>" + str + "</span>")
+#define span_vnotice(str) ("<span class='vnotice'>" + str + "</span>")
 
 /* Languages */
 

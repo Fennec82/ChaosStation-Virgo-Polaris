@@ -21,7 +21,7 @@
 	set desc = "Visit the forum."
 	set hidden = 1
 	if( config.forumurl )
-		if(tgui_alert(usr, "This will open the forum in your browser. Are you sure?","Visit Website",list("Yes","No"))=="No")
+		if(tgui_alert(usr, "This will open the forum in your browser. Are you sure?","Visit Website",list("Yes","No")) != "Yes")
 			return
 		src << link(config.forumurl)
 	else
@@ -34,7 +34,7 @@
 	set hidden = 1
 
 	if(config.rulesurl)
-		if(tgui_alert(usr, "This will open the rules in your browser. Are you sure?","Visit Website",list("Yes","No"))=="No")
+		if(tgui_alert(usr, "This will open the rules in your browser. Are you sure?","Visit Website",list("Yes","No")) != "Yes")
 			return
 		src << link(config.rulesurl)
 	else
@@ -47,7 +47,7 @@
 	set hidden = 1
 
 	if(config.mapurl)
-		if(tgui_alert(usr, "This will open the map in your browser. Are you sure?","Visit Website",list("Yes","No"))=="No")
+		if(tgui_alert(usr, "This will open the map in your browser. Are you sure?","Visit Website",list("Yes","No")) != "Yes")
 			return
 		src << link(config.mapurl)
 	else
@@ -60,7 +60,7 @@
 	set hidden = 1
 
 	if(config.githuburl)
-		if(tgui_alert(usr, "This will open the GitHub in your browser. Are you sure?","Visit Website",list("Yes","No"))=="No")
+		if(tgui_alert(usr, "This will open the GitHub in your browser. Are you sure?","Visit Website",list("Yes","No")) != "Yes")
 			return
 		src << link(config.githuburl)
 	else
@@ -73,7 +73,7 @@
 	set hidden = 1
 
 	if(config.discordurl)
-		if(tgui_alert(usr, "This will open the Discord in your browser. Are you sure?","Visit Website",list("Yes","No"))=="No")
+		if(tgui_alert(usr, "This will open the Discord in your browser. Are you sure?","Visit Website",list("Yes","No")) != "Yes")
 			return
 		src << link(config.discordurl)
 	else
@@ -86,7 +86,7 @@
 	set hidden = 1
 
 	if(config.patreonurl)
-		if(tgui_alert(usr, "This will open the Patreon in your browser. Are you sure?","Visit Website",list("Yes","No"))=="No")
+		if(tgui_alert(usr, "This will open the Patreon in your browser. Are you sure?","Visit Website",list("Yes","No")) != "Yes")
 			return
 		src << link(config.patreonurl)
 	else
@@ -223,7 +223,7 @@ Any-Mode: (hotkey doesn't need to be on)
 /client/proc/set_hotkeys_macro(macro_name = "macro", hotkey_macro_name = "hotkeymode", hotkeys_enabled = null)
 	// If hotkeys mode was not specified, fall back to choice of default in client preferences.
 	if(isnull(hotkeys_enabled))
-		hotkeys_enabled = is_preference_enabled(/datum/client_preference/hotkeys_default)
+		hotkeys_enabled = prefs?.read_preference(/datum/preference/toggle/hotkeys_default)
 
 	if(hotkeys_enabled)
 		winset(src, null, "mainwindow.macro=[hotkey_macro_name] hotkey_toggle.is-checked=true mapwindow.map.focus=true")

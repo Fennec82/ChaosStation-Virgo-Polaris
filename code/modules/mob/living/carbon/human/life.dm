@@ -12,31 +12,13 @@
 #define COLD_DAMAGE_LEVEL_2 1.5 //Amount of damage applied when your body temperature passes the 200K point
 #define COLD_DAMAGE_LEVEL_3 3 //Amount of damage applied when your body temperature passes the 120K point
 
-//Note that gas heat damage is only applied once every FOUR ticks.
-#define HEAT_GAS_DAMAGE_LEVEL_1 2 //Amount of damage applied when the current breath's temperature just passes the 360.15k safety point
-#define HEAT_GAS_DAMAGE_LEVEL_2 4 //Amount of damage applied when the current breath's temperature passes the 400K point
-#define HEAT_GAS_DAMAGE_LEVEL_3 8 //Amount of damage applied when the current breath's temperature passes the 1000K point
-
-#define COLD_GAS_DAMAGE_LEVEL_1 0.5 //Amount of damage applied when the current breath's temperature just passes the 260.15k safety point
-#define COLD_GAS_DAMAGE_LEVEL_2 1.5 //Amount of damage applied when the current breath's temperature passes the 200K point
-#define COLD_GAS_DAMAGE_LEVEL_3 3 //Amount of damage applied when the current breath's temperature passes the 120K point
-
-#define COLD_ALERT_SEVERITY_LOW         1 // Constants passed to the cold and heat alerts.
-#define COLD_ALERT_SEVERITY_MODERATE    2
-#define COLD_ALERT_SEVERITY_MAX         3
-#define ENVIRONMENT_COMFORT_MARKER_COLD 1
-
-#define HOT_ALERT_SEVERITY_LOW          1
-#define HOT_ALERT_SEVERITY_MODERATE     2
-#define HOT_ALERT_SEVERITY_MAX          3
-#define ENVIRONMENT_COMFORT_MARKER_HOT  2
-
 #define RADIATION_SPEED_COEFFICIENT 0.1
 #define HUMAN_COMBUSTION_TEMP 524 //524k is the sustained combustion temperature of human fat
 
 /mob/living/carbon/human
 	var/in_stasis = 0
 	var/heartbeat = 0
+	var/chemical_darksight = 0
 
 /mob/living/carbon/human/Life()
 	set invisibility = 0
@@ -91,6 +73,8 @@
 
 		handle_heartbeat()
 		handle_nif() 			//VOREStation Addition
+		if(phobias)
+			handle_phobias()
 		if(!client)
 			species.handle_npc(src)
 
@@ -554,6 +538,11 @@
 		adjustOxyLoss(2)//If you are suiciding, you should die a little bit faster
 		suiciding--
 		return 0
+
+	if(wear_mask && (wear_mask.item_flags & INFINITE_AIR))
+		failed_last_breath = 0
+		adjustOxyLoss(-5)
+		return
 
 	if(does_not_breathe)
 		failed_last_breath = 0
@@ -1178,8 +1167,15 @@
 	if(noisy == TRUE && nutrition < 250 && prob(10)) //VOREStation edit for hunger noises.
 		var/sound/growlsound = sound(get_sfx("hunger_sounds"))
 		var/growlmultiplier = 100 - (nutrition / 250 * 100)
-		playsound(src, growlsound, vol = growlmultiplier, vary = 1, falloff = 0.1, ignore_walls = TRUE, preference = /datum/client_preference/digestion_noises)
+		playsound(src, growlsound, vol = growlmultiplier, vary = 1, falloff = 0.1, ignore_walls = TRUE, preference = /datum/preference/toggle/digestion_noises)
 	// VOREStation Edit End
+
+	if((CE_DARKSIGHT in chem_effects) && chemical_darksight == 0)
+		recalculate_vis()
+		chemical_darksight = 1
+	if(!(CE_DARKSIGHT in chem_effects) && chemical_darksight == 1)
+		recalculate_vis()
+		chemical_darksight = 0
 
 	// TODO: stomach and bloodstream organ.
 	if(!isSynthetic())
@@ -1245,6 +1241,32 @@
 			Paralyse(10)
 			setHalLoss(species.total_health - 1)
 
+		if(tiredness) //tiredness for vore drain
+			tiredness = (tiredness - 1)
+			if(tiredness >= 100)
+				Sleeping(5)
+
+		if(fear)
+			fear = (fear - 1)
+			if(fear >= 80 && client?.prefs?.read_preference(/datum/preference/toggle/play_ambience))
+				if(last_fear_sound + 51 SECONDS <= world.time)
+					src << sound('sound/effects/Heart Beat.ogg',0,0,0,25)
+					last_fear_sound = world.time
+			if(fear >= 80 && !isSynthetic())
+				if(prob(1) && get_active_hand())
+					var/stuff_to_drop = get_active_hand()
+					drop_item()
+					visible_message("<span class='notice'>\The [src] suddenly drops their [stuff_to_drop].</span>","<span class='warning'>You drop your [stuff_to_drop]!</span>")
+				if(prob(5))
+					var/fear_self = pick(fear_message_self)
+					var/fear_other = pick(fear_message_other)
+					visible_message("<span class='notice'>\The [src][fear_other]</span>","<span class='warning'>[fear_self]</span>")
+			else if(fear >= 30 && !isSynthetic())
+				if(prob(2))
+					var/fear_self = pick(fear_message_self)
+					var/fear_other = pick(fear_message_other)
+					visible_message("<span class='notice'>\The [src][fear_other]</span>","<span class='warning'>[fear_self]</span>")
+
 		if(paralysis || sleeping)
 			blinded = 1
 			set_stat(UNCONSCIOUS)
@@ -1256,8 +1278,7 @@
 				if (mind)
 					//Are they SSD? If so we'll keep them asleep but work off some of that sleep var in case of stoxin or similar.
 					if(client || sleeping > 3)
-						AdjustSleeping(-1)
-						throw_alert("asleep", /obj/screen/alert/asleep)
+						handle_sleeping()
 				if( prob(2) && health && !hal_crit && client )
 					spawn(0)
 						emote("snore")
@@ -1428,6 +1449,34 @@
 			overlay_fullscreen("brute", /obj/screen/fullscreen/brute, severity)
 		else
 			clear_fullscreen("brute")
+
+		//tiredness for drain vore
+		if(tiredness)
+			var/severity = 0
+			switch(tiredness)
+				if(10 to 20)		severity = 1
+				if(20 to 30)		severity = 2
+				if(30 to 45)		severity = 3
+				if(45 to 60)		severity = 4
+				if(60 to 75)		severity = 5
+				if(75 to 90)		severity = 6
+				if(90 to INFINITY)	severity = 7
+			overlay_fullscreen("tired", /obj/screen/fullscreen/oxy, severity)
+		else
+			clear_fullscreen("tired")
+
+		if(fear)
+			var/severity = 0
+			switch(fear)
+				if(10 to 20)		severity = 1
+				if(20 to 30)		severity = 2
+				if(30 to 50)		severity = 3
+				if(50 to 70)		severity = 4
+				if(70 to 90)		severity = 5
+				if(90 to INFINITY)	severity = 6
+			overlay_fullscreen("fear", /obj/screen/fullscreen/fear, severity)
+		else
+			clear_fullscreen("fear")
 
 		if(healths)
 			if (chem_effects[CE_PAINKILLER] > 100)
@@ -1940,7 +1989,7 @@
 	if(!H || (H.robotic >= ORGAN_ROBOT))
 		return
 
-	if(pulse >= PULSE_2FAST || shock_stage >= 10 || (istype(get_turf(src), /turf/space) && is_preference_enabled(/datum/client_preference/play_ambiance)))
+	if(pulse >= PULSE_2FAST || shock_stage >= 10 || (istype(get_turf(src), /turf/space) && read_preference(/datum/preference/toggle/play_ambience)))
 		//PULSE_THREADY - maximum value for pulse, currently it 5.
 		//High pulse value corresponds to a fast rate of heartbeat.
 		//Divided by 2, otherwise it is too slow.
@@ -1964,6 +2013,8 @@
 			holder.icon_state = "-100" 	// X_X
 		else
 			holder.icon_state = RoundHealth((health-config.health_threshold_crit)/(getMaxHealth()-config.health_threshold_crit)*100)
+		if(block_hud)
+			holder.icon_state = "hudblank"
 		apply_hud(HEALTH_HUD, holder)
 
 	if (BITTEST(hud_updateflag, LIFE_HUD))
@@ -1974,6 +2025,8 @@
 			holder.icon_state = "huddead"
 		else
 			holder.icon_state = "hudhealthy"
+		if(block_hud)
+			holder.icon_state = "hudblank"
 		apply_hud(LIFE_HUD, holder)
 
 	if (BITTEST(hud_updateflag, STATUS_HUD))
@@ -2005,6 +2058,9 @@
 				holder2.icon_state = "hudill"
 			else
 				holder2.icon_state = "hudhealthy"
+		if(block_hud)
+			holder.icon_state = "hudblank"
+			holder2.icon_state = "hudblank"
 
 		apply_hud(STATUS_HUD, holder)
 		apply_hud(STATUS_HUD_OOC, holder2)
@@ -2020,6 +2076,8 @@
 		else
 			holder.icon_state = "hudunknown"
 
+		if(block_hud)
+			holder.icon_state = "hudblank"
 		apply_hud(ID_HUD, holder)
 
 	if (BITTEST(hud_updateflag, WANTED_HUD))
@@ -2046,7 +2104,8 @@
 					else if((R.fields["id"] == E.fields["id"]) && (R.fields["criminal"] == "Released"))
 						holder.icon_state = "hudreleased"
 						break
-
+		if(block_hud)
+			holder.icon_state = "hudblank"
 		apply_hud(WANTED_HUD, holder)
 
 	if (  BITTEST(hud_updateflag, IMPLOYAL_HUD) \
@@ -2128,3 +2187,14 @@
 
 #undef HUMAN_MAX_OXYLOSS
 #undef HUMAN_CRIT_MAX_OXYLOSS
+
+#undef HEAT_DAMAGE_LEVEL_1
+#undef HEAT_DAMAGE_LEVEL_2
+#undef HEAT_DAMAGE_LEVEL_3
+
+#undef COLD_DAMAGE_LEVEL_1
+#undef COLD_DAMAGE_LEVEL_2
+#undef COLD_DAMAGE_LEVEL_3
+
+#undef RADIATION_SPEED_COEFFICIENT
+#undef HUMAN_COMBUSTION_TEMP

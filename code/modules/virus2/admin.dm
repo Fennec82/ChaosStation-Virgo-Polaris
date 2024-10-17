@@ -150,7 +150,7 @@
 				if(!infectee.species || !(infectee.species.get_bodytype() in species))
 					infectee = null
 		if("ichance")
-			var/I = tgui_input_number(usr, "Input infection chance", "Infection Chance", infectionchance)
+			var/I = tgui_input_number(usr, "Input infection chance", "Infection Chance", infectionchance, 100)
 			if(!I) return
 			infectionchance = I
 		if("stype")
@@ -172,7 +172,7 @@
 			else if(href_list["reset"])
 				antigens = list()
 		if("resistance")
-			var/S = tgui_input_number(usr, "Input % resistance to antibiotics", "Resistance", resistance)
+			var/S = tgui_input_number(usr, "Input % resistance to antibiotics", "Resistance", resistance, 100)
 			if(!S) return
 			resistance = S
 		if("infectee")
@@ -194,7 +194,7 @@
 			if(!antigens.len)
 				var/a = tgui_alert(usr, "This disease has no antigens; it will be impossible to permanently immunise anyone without them.\
 								It is strongly recommended to set at least one antigen. Do you want to go back and edit your virus?", "Antigens", list("Yes", "No"))
-				if(a == "Yes") return
+				if(!a || a == "Yes") return
 			var/datum/disease2/disease/D = new
 			D.infectionchance = infectionchance
 			D.spreadtype = spreadtype

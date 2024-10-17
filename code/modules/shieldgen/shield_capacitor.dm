@@ -49,7 +49,7 @@
 	else if(W.has_tool_quality(TOOL_WRENCH))
 		src.anchored = !src.anchored
 		playsound(src, W.usesound, 75, 1)
-		src.visible_message(span_blue("\icon[src][bicon(src)] [src] has been [anchored ? "bolted to the floor" : "unbolted from the floor"] by [user]."))
+		src.visible_message(span_blue("[icon2html(src,viewers(src))] [src] has been [anchored ? "bolted to the floor" : "unbolted from the floor"] by [user]."))
 
 		if(anchored)
 			spawn(0)
@@ -145,4 +145,17 @@
 		return
 
 	src.set_dir(turn(src.dir, 270))
+	return
+
+//VOREstation edit: counter-clockwise rotation
+/obj/machinery/shield_capacitor/verb/rotate_counterclockwise()
+	set name = "Rotate Capacitor Counter-Clockwise"
+	set category = "Object"
+	set src in oview(1)
+
+	if (src.anchored)
+		to_chat(usr, "It is fastened to the floor!")
+		return
+
+	src.set_dir(turn(src.dir, 90))
 	return

@@ -2,20 +2,42 @@
 	mob_list -= src
 	dead_mob_list -= src
 	living_mob_list -= src
+	player_list -= src
 	unset_machine()
-	qdel(hud_used)
+	QDEL_NULL(hud_used)
 	clear_fullscreen()
 	if(client)
 		for(var/obj/screen/movable/spell_master/spell_master in spell_masters)
 			qdel(spell_master)
 		remove_screen_obj_references()
-		client.screen = list()
+		client.screen.Cut()
 	if(mind && mind.current == src)
 		spellremove(src)
 	ghostize()
-	QDEL_NULL(plane_holder)
-	..()
-	return QDEL_HINT_HARDDEL_NOW
+	if(focus)
+		focus = null
+	if(plane_holder)
+		QDEL_NULL(plane_holder)
+
+	if(pulling)
+		stop_pulling() //TG does this on atom/movable but our stop_pulling proc is here so whatever
+
+	vore_selected = null
+	if(vore_organs)
+		QDEL_NULL_LIST(vore_organs)
+	if(vorePanel)
+		QDEL_NULL(vorePanel)
+
+
+	if(mind)
+		if(mind.current == src)
+			mind.current = null
+		if(mind.original == src)
+			mind.original = null
+
+	. = ..()
+	update_client_z(null)
+	//return QDEL_HINT_HARDDEL_NOW
 
 /mob/proc/remove_screen_obj_references()
 	hands = null
@@ -43,7 +65,8 @@
 	set_focus(src) // VOREStation Add - Key Handling
 	hook_vr("mob_new",list(src)) //VOREStation Code
 	update_transform() // Some mobs may start bigger or smaller than normal.
-	return ..()
+	. = ..()
+	//return QDEL_HINT_HARDDEL_NOW Just keep track of mob references. They delete SO much faster now.
 
 /mob/proc/show_message(msg, type, alt, alt_type)//Message, type of message (1 or 2), alternative message, alt message type (1 or 2)
 	var/time = say_timestamp()
@@ -370,7 +393,7 @@
 	// Final chance to abort "respawning"
 	if(mind && timeofdeath) // They had spawned before
 		var/choice = tgui_alert(usr, "Returning to the menu will prevent your character from being revived in-round. Are you sure?", "Confirmation", list("No, wait", "Yes, leave"))
-		if(choice == "No, wait")
+		if(!choice || choice == "No, wait")
 			return
 		else if(mind.assigned_role)
 			var/extra_check = tgui_alert(usr, "Do you want to Quit This Round before you return to lobby?\
@@ -720,7 +743,8 @@
 						SS.stat_entry()
 
 			if(statpanel("Tickets"))
-				GLOB.ahelp_tickets.stat_entry()
+				if(check_rights(R_ADMIN|R_SERVER,FALSE)) //Prevents non-staff from opening the list of ahelp tickets
+					GLOB.ahelp_tickets.stat_entry()
 
 
 			if(length(GLOB.sdql2_queries))
@@ -1160,6 +1184,7 @@
 /mob/proc/set_viewsize(var/new_view = world.view)
 	if (client && new_view != client.view)
 		client.view = new_view
+		client.attempt_auto_fit_viewport()
 		return TRUE
 	return FALSE
 
@@ -1173,22 +1198,25 @@
 
 /mob/proc/throw_mode_off()
 	src.in_throw_mode = 0
-	if(client)
-		if(a_intent == I_HELP || client.prefs.throwmode_loud)
-			src.visible_message("<span class='notice'>[src] relaxes from their ready stance.</span>","<span class='notice'>You relax from your ready stance.</span>")
-	if(src.throw_icon) //in case we don't have the HUD and we use the hotkey
+	if(src.throw_icon && !issilicon(src)) //in case we don't have the HUD and we use the hotkey. Silicon use this for something else. Do not overwrite their HUD icon
 		src.throw_icon.icon_state = "act_throw_off"
 
 /mob/proc/throw_mode_on()
 	src.in_throw_mode = 1
-	if(client)
-		if(a_intent == I_HELP || client.prefs.throwmode_loud)
-			if(src.get_active_hand())
-				src.visible_message("<span class='warning'>[src] winds up to throw [get_active_hand()]!</span>","<span class='notice'>You wind up to throw [get_active_hand()].</span>")
-			else
-				src.visible_message("<span class='warning'>[src] looks ready to catch anything thrown at them!</span>","<span class='notice'>You get ready to catch anything thrown at you.</span>")
-	if(src.throw_icon)
+	if(src.throw_icon && !issilicon(src)) // Silicon use this for something else. Do not overwrite their HUD icon
 		src.throw_icon.icon_state = "act_throw_on"
+
+/mob/verb/spacebar_throw_on()
+	set name = ".throwon"
+	set hidden = TRUE
+	set instant = TRUE
+	throw_mode_on()
+
+/mob/verb/spacebar_throw_off()
+	set name = ".throwoff"
+	set hidden = TRUE
+	set instant = TRUE
+	throw_mode_off()
 
 /mob/proc/isSynthetic()
 	return 0
@@ -1197,12 +1225,33 @@
 	return 0
 
 //Exploitable Info Update
+/obj
+	var/datum/weakref/exploit_for //if this obj is an exploit for somebody, this points to them
 
 /mob/proc/amend_exploitable(var/obj/item/I)
 	if(istype(I))
 		exploit_addons |= I
 		var/exploitmsg = html_decode("\n" + "Has " + I.name + ".")
 		exploit_record += exploitmsg
+		I.exploit_for = WEAKREF(src)
+
+
+/obj/Destroy()
+	if(exploit_for)
+		var/mob/exploited = exploit_for.resolve()
+		exploited?.exploit_addons -= src
+		exploit_for = null
+	. = ..()
+
+
+
+/obj/Destroy()
+	if(istype(src.loc, /mob))
+		var/mob/holder = src.loc
+		if(src in holder.exploit_addons)
+			holder.exploit_addons -= src
+	. = ..()
+
 
 /client/proc/check_has_body_select()
 	return mob && mob.hud_used && istype(mob.zone_sel, /obj/screen/zone_sel)
@@ -1269,20 +1318,18 @@
 	return TRUE
 
 /mob/MouseEntered(location, control, params)
-	if(usr != src && usr.is_preference_enabled(/datum/client_preference/mob_tooltips) && src.will_show_tooltip())
-		openToolTip(user = usr, tip_src = src, params = params, title = get_nametag_name(usr), content = get_nametag_desc(usr))
-
-	..()
+	if(usr != src && will_show_tooltip())
+		if(usr?.read_preference(/datum/preference/toggle/mob_tooltips))
+			openToolTip(usr, src, params, title = get_nametag_name(usr), content = get_nametag_desc(usr))
+	. = ..()
 
 /mob/MouseDown()
 	closeToolTip(usr) //No reason not to, really
-
-	..()
+	. = ..()
 
 /mob/MouseExited()
 	closeToolTip(usr) //No reason not to, really
-
-	..()
+	. = ..()
 
 // Manages a global list of mobs with clients attached, indexed by z-level.
 /mob/proc/update_client_z(new_z) // +1 to register, null to unregister.

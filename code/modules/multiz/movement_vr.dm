@@ -138,13 +138,13 @@
 		if(!permit_human)
 			var/sure = tgui_alert(H,"Are you sure you want to try without tools? It's VERY LIKELY \
 			you will fall and get hurt. More agile species might have better luck", "Second Thoughts", list("Bring it!", "Stay grounded"))
-			if(sure == "Stay grounded") return
+			if(sure || sure == "Stay grounded") return
 			fall_chance = clamp(100 - H.species.agility, 40, 90) //This should be 80 for most species. Traceur would reduce to 10%, so clamping higher
 	//If not a human mob, must be simple or silicon. They got a var stored on their mob we can check
 	else if(!L.can_climb)
 		var/sure = tgui_alert(L,"Are you sure you want to try without tools? It's VERY LIKELY \
 			you will fall and get hurt. More agile species might have better luck", "Second Thoughts", list("Bring it!", "Stay grounded"))
-		if(sure == "Stay grounded") return
+		if(!sure || sure == "Stay grounded") return
 		if(isrobot(L))
 			fall_chance = 80 // Robots get no mercy
 		else
@@ -177,15 +177,14 @@
 			climb_time += 10 SECONDS
 		if(climbing_delay_min > 1.0)
 			climb_time += 2.5 SECONDS
-	switch(L.nutrition)	//Values are 50 lower than the warning icon appearing
-		if(100 to 200)
-			to_chat(L, SPAN_NOTICE("Climbing while [L.isSynthetic() ? "low on power" : "hungry"] slows you down"))
-			climb_time += 1 SECONDS
-		if(nutrition_cost to 100)
-			to_chat(L, SPAN_DANGER("You [L.isSynthetic() ? "lack enough power" : "are too hungry"] to climb safely!"))
-			climb_time +=3 SECONDS
-			if(fall_chance < 30)
-				fall_chance = 30
+	if(L.nutrition >= 100 && L.nutrition <= 200)
+		to_chat(L, SPAN_NOTICE("Climbing while [L.isSynthetic() ? "low on power" : "hungry"] slows you down"))
+		climb_time += 1 SECONDS
+	else if(L.nutrition >= nutrition_cost && L.nutrition <= 100)
+		to_chat(L, SPAN_DANGER("You [L.isSynthetic() ? "lack enough power" : "are too hungry"] to climb safely!"))
+		climb_time +=3 SECONDS
+		if(fall_chance < 30)
+			fall_chance = 30
 	L.visible_message(message = "<b>[L]</b> begins to climb up on <b>\The [src]</b>", self_message = "You begin to clumb up on <b>\The [src]</b>", \
 		blind_message = "You hear the sounds of climbing!", runemessage = "Tap Tap")
 	var/oops_time = world.time
@@ -262,13 +261,13 @@
 		if(!permit_human)
 			var/sure = tgui_alert(H,"Are you sure you want to try without tools? It's VERY LIKELY \
 			you will fall and get hurt. More agile species might have better luck", "Second Thoughts", list("Bring it!", "Stay grounded"))
-			if(sure == "Stay grounded") return
+			if(!sure || sure == "Stay grounded") return
 			fall_chance = clamp(100 - H.species.agility, 40, 90) //This should be 80 for most species. Traceur would reduce to 10%, so clamping higher
 	//If not a human mob, must be simple or silicon. They got a var stored on their mob we can check
 	else if(!src.can_climb)
 		var/sure = tgui_alert(src,"Are you sure you want to try without tools? It's VERY LIKELY \
 			you will fall and get hurt. More agile species might have better luck", "Second Thoughts", list("Bring it!", "Stay grounded"))
-		if(sure == "Stay grounded") return
+		if(!sure || sure == "Stay grounded") return
 		if(isrobot(src))
 			fall_chance = 80 // Robots get no mercy
 		else
@@ -294,15 +293,14 @@
 			climb_time += 10 SECONDS
 		if(climbing_delay_min > 1.0)
 			climb_time += 2.5 SECONDS
-	switch(nutrition)	//Values are 50 lower than the warning icon appearing
-		if(100 to 200)
-			to_chat(src, SPAN_NOTICE("Climbing while [isSynthetic() ? "low on power" : "hungry"] slows you down"))
-			climb_time += 1 SECONDS
-		if(nutrition_cost to 100)
-			to_chat(src, SPAN_DANGER("You [isSynthetic() ? "lack enough power" : "are too hungry"] to climb safely!"))
-			climb_time +=3 SECONDS
-			if(fall_chance < 30)
-				fall_chance = 30
+	if(nutrition >= 100 && nutrition <= 200) //Values are 50 lower than the warning icon appearing
+		to_chat(src, SPAN_NOTICE("Climbing while [isSynthetic() ? "low on power" : "hungry"] slows you down"))
+		climb_time += 1 SECONDS
+	else if(nutrition >= nutrition_cost && nutrition <= 100)
+		to_chat(src, SPAN_DANGER("You [isSynthetic() ? "lack enough power" : "are too hungry"] to climb safely!"))
+		climb_time +=3 SECONDS
+		if(fall_chance < 30)
+			fall_chance = 30
 
 	if(!climbing_surface.climbable)
 		to_chat(src, SPAN_DANGER("\The [climbing_surface] is not suitable for climbing! Even for a master climber, this is risky!"))

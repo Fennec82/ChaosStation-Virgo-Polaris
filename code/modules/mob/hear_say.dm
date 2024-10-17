@@ -38,9 +38,6 @@
 
 		raw_msg += (piece + " ")
 
-		if(!speaker.client)
-			piece = "<span class='npcsay'>[piece]</span>"
-
 		//HTML formatting
 		if(!SP.speaking) // Catch the most generic case first
 			piece = "<span class='message body'>[piece]</span>"
@@ -69,7 +66,7 @@
 	if(!client && !teleop)
 		return FALSE
 
-	if(isobserver(src) && is_preference_enabled(/datum/client_preference/ghost_ears))
+	if(isobserver(src) && client?.prefs?.read_preference(/datum/preference/toggle/ghost_ears))
 		if(speaker && !speaker.client && !(speaker in view(src)))
 			//Does the speaker have a client?  It's either random stuff that observers won't care about (Experiment 97B says, 'EHEHEHEHEHEHEHE')
 			//Or someone snoring.  So we make it where they won't hear it.
@@ -111,7 +108,7 @@
 		if(speaker_name != speaker.real_name && speaker.real_name)
 			speaker_name = "[speaker.real_name] ([speaker_name])"
 		track = "([ghost_follow_link(speaker, src)]) "
-		if(is_preference_enabled(/datum/client_preference/ghost_ears) && (speaker in view(src)))
+		if(client?.prefs?.read_preference(/datum/preference/toggle/ghost_ears) && (speaker in view(src)))
 			message = "<b>[message]</b>"
 
 	if(is_deaf())
@@ -122,10 +119,10 @@
 	else
 		var/message_to_send = null
 		message_to_send = "<span class='name'>[speaker_name]</span>[speaker.GetAltName()] [track][message]"
-		if(check_mentioned(multilingual_to_message(message_pieces)) && is_preference_enabled(/datum/client_preference/check_mention))
+		if(check_mentioned(multilingual_to_message(message_pieces)) && client?.prefs?.read_preference(/datum/preference/toggle/check_mention))
 			message_to_send = "<font size='3'><b>[message_to_send]</b></font>"
 
-		on_hear_say(message_to_send)
+		on_hear_say(message_to_send, speaker)
 		create_chat_message(speaker, combined["raw"], italics, list())
 
 		if(speech_sound && (get_dist(speaker, src) <= world.view && z == speaker.z))
@@ -140,25 +137,33 @@
 	if(has_AI()) // Won't happen if no ai_holder exists or there's a player inside w/o autopilot active.
 		ai_holder.on_hear_say(speaker, multilingual_to_message(message_pieces))
 
-/mob/proc/on_hear_say(var/message)
+/mob/proc/on_hear_say(var/message, var/mob/speaker = null)
 	var/time = say_timestamp()
 	if(client)
 		if(client.prefs.chat_timestamp)
-			to_chat(src, "<span class='game say'>[time] [message]</span>")
-		else
-			to_chat(src, "<span class='game say'>[message]</span>")
+			message = "[time] [message]"
+		message = "<span class='game say'>[message]</span>"
+		if(speaker && !speaker.client)
+			message = "<span class='npcsay'>[message]</span>"
+		else if(speaker && !(get_z(src) == get_z(speaker)))
+			message = "<span class='multizsay'>[message]</span>"
+		to_chat(src, message)
 	else if(teleop)
 		to_chat(teleop, "<span class='game say'>[create_text_tag("body", "BODY:", teleop.client)][message]</span>")
 	else
 		to_chat(src, "<span class='game say'>[message]</span>")
 
-/mob/living/silicon/on_hear_say(var/message)
+/mob/living/silicon/on_hear_say(var/message, var/mob/speaker = null)
 	var/time = say_timestamp()
 	if(client)
 		if(client.prefs.chat_timestamp)
-			to_chat(src, "<span class='game say'>[time] [message]</span>")
-		else
-			to_chat(src, "<span class='game say'>[message]</span>")
+			message = "[time] [message]"
+		message = "<span class='game say'>[message]</span>"
+		if(speaker && !speaker.client)
+			message = "<span class='npcsay'>[message]</span>"
+		else if(speaker && !(get_z(src) == get_z(speaker)))
+			message = "<span class='multizsay'>[message]</span>"
+		to_chat(src, message)
 	else if(teleop)
 		to_chat(teleop, "<span class='game say'>[create_text_tag("body", "BODY:", teleop.client)][message]</span>")
 	else
@@ -222,7 +227,7 @@
 	if(client.prefs.chat_timestamp)
 		time = say_timestamp()
 	var/final_message = "[part_b][speaker_name][part_c][formatted][part_d]"
-	if(check_mentioned(formatted) && is_preference_enabled(/datum/client_preference/check_mention))
+	if(check_mentioned(formatted) && client?.prefs?.read_preference(/datum/preference/toggle/check_mention))
 		final_message = "[time][part_a]<font size='3'><b>[final_message]</b></font>[part_e]"
 	else
 		final_message = "[time][part_a][final_message][part_e]"
@@ -233,7 +238,7 @@
 	if(client.prefs.chat_timestamp)
 		time = say_timestamp()
 	var/final_message = "[part_b][track][part_c][formatted][part_d]"
-	if(check_mentioned(formatted) && is_preference_enabled(/datum/client_preference/check_mention))
+	if(check_mentioned(formatted) && client?.prefs?.read_preference(/datum/preference/toggle/check_mention))
 		final_message = "[time][part_a]<font size='3'><b>[final_message]</b></font>[part_e]"
 	else
 		final_message = "[time][part_a][final_message][part_e]"
@@ -244,7 +249,7 @@
 	if(client.prefs.chat_timestamp)
 		time = say_timestamp()
 	var/final_message = "[part_b][speaker_name][part_c][formatted][part_d]"
-	if(check_mentioned(formatted) && is_preference_enabled(/datum/client_preference/check_mention))
+	if(check_mentioned(formatted) && client?.prefs?.read_preference(/datum/preference/toggle/check_mention))
 		final_message = "[time][part_a]<font size='3'><b>[final_message]</b></font>[part_e]"
 	else
 		final_message = "[time][part_a][final_message][part_e]"
@@ -255,7 +260,7 @@
 	if(client.prefs.chat_timestamp)
 		time = say_timestamp()
 	var/final_message = "[part_b][track][part_c][formatted][part_d]"
-	if(check_mentioned(formatted) && is_preference_enabled(/datum/client_preference/check_mention))
+	if(check_mentioned(formatted) && client?.prefs?.read_preference(/datum/preference/toggle/check_mention))
 		final_message = "[time][part_a]<font size='3'><b>[final_message]</b></font>[part_e]"
 	else
 		final_message = "[time][part_a][final_message][part_e]"
@@ -330,4 +335,13 @@
 		name = speaker.voice_name
 
 	var/rendered = "<span class='game say'><span class='name'>[name]</span> [message]</span>"
+	if(!speaker.client)
+		rendered = "<span class='npcsay'>[rendered]</span>"
+	else
+		if(istype(speaker, /mob/living/silicon/ai))
+			var/mob/living/silicon/ai/source = speaker
+			if(!(get_z(src) == get_z(source.holo)))
+				rendered = "<span class='multizsay'>[rendered]</span>"
+		else if(!(get_z(src) == get_z(speaker)))
+			rendered = "<span class='multizsay'>[rendered]</span>"
 	to_chat(src, rendered)

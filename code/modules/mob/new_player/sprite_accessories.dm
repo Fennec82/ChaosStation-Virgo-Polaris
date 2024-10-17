@@ -668,6 +668,21 @@
 	icon_state = "hair_glossy"
 	flags = HAIR_TIEABLE
 
+/datum/sprite_accessory/hair/gloomyshort
+	name = "Gloomy Bangs, Short"
+	icon_state = "hair_gloomy_short"
+	flags = HAIR_TIEABLE
+
+/datum/sprite_accessory/hair/gloomymedium
+	name = "Gloomy Bangs, Medium"
+	icon_state = "hair_gloomy_medium"
+	flags = HAIR_TIEABLE
+
+/datum/sprite_accessory/hair/gloomylong
+	name = "Gloomy Bangs, Long"
+	icon_state = "hair_gloomy_long"
+	flags = HAIR_TIEABLE
+
 /datum/sprite_accessory/hair/halfbang
 	name = "Half-banged Hair"
 	icon_state = "hair_halfbang"
@@ -3715,3 +3730,9 @@ shaved
 	icon_state = "Voxscales"
 	color_blend_mode = ICON_MULTIPLY
 	body_parts = list(BP_R_ARM,BP_L_ARM,BP_R_HAND,BP_L_HAND,BP_R_LEG,BP_L_LEG,BP_R_FOOT,BP_L_FOOT)
+
+/datum/sprite_accessory/marking/vox/dinomuzzle
+	name = "Vox Dinosaur Muzzle"
+	icon_state = "vox_muzzle"
+	color_blend_mode = ICON_MULTIPLY
+	body_parts = list(BP_HEAD)

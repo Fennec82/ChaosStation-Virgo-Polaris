@@ -29,12 +29,16 @@ GLOBAL_LIST_INIT(digest_modes, list())
 
 	//Person just died in guts!
 	if(L.stat == DEAD)
-		if(L.is_preference_enabled(/datum/client_preference/digestion_noises))
+		if(L.check_sound_preference(/datum/preference/toggle/digestion_noises))
 			if(!B.fancy_vore)
 				SEND_SOUND(L, sound(get_sfx("classic_death_sounds")))
 			else
 				SEND_SOUND(L, sound(get_sfx("fancy_death_prey")))
 		B.handle_digestion_death(L)
+		if(!L)
+			if (istype(B.owner, /mob/living/carbon/human))
+				var/mob/living/carbon/human/howner = B.owner
+				howner.update_fullness()
 		if(!B.fancy_vore)
 			return list("to_update" = TRUE, "soundToPlay" = sound(get_sfx("classic_death_sounds")))
 		return list("to_update" = TRUE, "soundToPlay" = sound(get_sfx("fancy_death_pred")))
@@ -60,6 +64,11 @@ GLOBAL_LIST_INIT(digest_modes, list())
 
 	var/offset = (1 + ((L.weight - 137) / 137)) // 130 pounds = .95 140 pounds = 1.02
 	var/difference = B.owner.size_multiplier / L.size_multiplier
+
+	if(B.health_impacts_size)
+		if (istype(B.owner, /mob/living/carbon/human))
+			var/mob/living/carbon/human/howner = B.owner
+			howner.update_fullness()
 
 	consider_healthbar(L, old_health, B.owner)
 
@@ -327,7 +336,7 @@ GLOBAL_LIST_INIT(digest_modes, list())
 		new_percent = (L.health / L.maxHealth) * 100
 
 	var/lets_announce = FALSE
-	if(new_percent <= 99 && old_percent > 99)
+	if(new_percent <= 95 && old_percent > 95)
 		lets_announce = TRUE
 	else if(new_percent <= 75 && old_percent > 75)
 		lets_announce = TRUE
@@ -335,7 +344,7 @@ GLOBAL_LIST_INIT(digest_modes, list())
 		lets_announce = TRUE
 	else if(new_percent <= 25 && old_percent > 25)
 		lets_announce = TRUE
-	else if(new_percent <= 5 && old_percent > 5)
+	else if(new_percent <= 0 && old_percent > 0)
 		lets_announce = TRUE
 
 	if(lets_announce)
@@ -380,7 +389,7 @@ GLOBAL_LIST_INIT(digest_modes, list())
 	var/old_percent = ((old_nutrition - 100) / 500) * 100
 	var/new_percent = ((L.nutrition - 100) / 500) * 100
 	var/lets_announce = FALSE
-	if(new_percent <= 99 && old_percent > 99)
+	if(new_percent <= 95 && old_percent > 95)
 		lets_announce = TRUE
 	else if(new_percent <= 75 && old_percent > 75)
 		lets_announce = TRUE
@@ -404,7 +413,7 @@ GLOBAL_LIST_INIT(digest_modes, list())
 	var/new_percent = ((L.nutrition - 100) / 500) * 100
 
 	var/lets_announce = FALSE
-	if(new_percent <= 99 && old_percent > 99)
+	if(new_percent <= 95 && old_percent > 95)
 		lets_announce = TRUE
 	else if(new_percent <= 75 && old_percent > 75)
 		lets_announce = TRUE

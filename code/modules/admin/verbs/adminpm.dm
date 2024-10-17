@@ -57,7 +57,7 @@
 
 	if(AH)
 		message_admins("<span class='pm'>[key_name_admin(src)] has started replying to [key_name(C, 0, 0)]'s admin help.</span>")
-	var/msg = tgui_input_text(src,"Message:", "Private message to [key_name(C, 0, 0)]")
+	var/msg = tgui_input_text(src,"Message:", "Private message to [key_name(C, 0, 0)]", multiline = TRUE)
 	if (!msg)
 		message_admins("<span class='pm'>[key_name_admin(src)] has cancelled their reply to [key_name(C, 0, 0)]'s admin help.</span>")
 		return
@@ -92,7 +92,7 @@
 		if(!ircreplyamount)	//to prevent people from spamming irc
 			return
 		if(!msg)
-			msg = tgui_input_text(src,"Message:", "Private message to Administrator")
+			msg = tgui_input_text(src,"Message:", "Private message to Administrator", multiline = TRUE)
 
 		if(!msg)
 			return
@@ -112,7 +112,7 @@
 
 		//get message text, limit it's length.and clean/escape html
 		if(!msg)
-			msg = tgui_input_text(src,"Message:", "Private message to [key_name(recipient, 0, 0)]")
+			msg = tgui_input_text(src,"Message:", "Private message to [key_name(recipient, 0, 0)]", multiline = TRUE)
 
 			if(!msg)
 				return
@@ -165,7 +165,7 @@
 				to_chat(src, "<span class='pm notice'>PM to-<b>Admins</b>: [msg]</span>")
 
 			//play the recieving admin the adminhelp sound (if they have them enabled)
-			if(recipient.is_preference_enabled(/datum/client_preference/holder/play_adminhelp_ping))
+			if(recipient.prefs?.read_preference(/datum/preference/toggle/holder/play_adminhelp_ping))
 				recipient << 'sound/effects/adminhelp.ogg'
 
 		else
@@ -188,7 +188,7 @@
 					spawn()	//so we don't hold the caller proc up
 						var/sender = src
 						var/sendername = key
-						var/reply = tgui_input_text(recipient, msg,"Admin PM from-[sendername]", "")	//show message and await a reply
+						var/reply = tgui_input_text(recipient, msg,"Admin PM from-[sendername]", "", multiline = TRUE)	//show message and await a reply
 						if(recipient && reply)
 							if(sender)
 								recipient.cmd_admin_pm(sender,reply)										//sender is still about, let's reply to them
@@ -203,11 +203,15 @@
 	if(irc)
 		log_admin("PM: [key_name(src)]->IRC: [rawmsg]")
 		for(var/client/X in GLOB.admins)
+			if(!check_rights(R_ADMIN, 0, X))
+				continue
 			to_chat(X, "<span class='pm notice'><B>PM: [key_name(src, X, 0)]-&gt;IRC:</B> [keywordparsedmsg]</span>")
 	else
 		log_admin("PM: [key_name(src)]->[key_name(recipient)]: [rawmsg]")
 		//we don't use message_admins here because the sender/receiver might get it too
 		for(var/client/X in GLOB.admins)
+			if(!check_rights(R_ADMIN, 0, X))
+				continue
 			if(X.key!=key && X.key!=recipient.key)	//check client/X is an admin and isn't the sender or recipient
 				to_chat(X, "<span class='pm notice'><B>PM: [key_name(src, X, 0)]-&gt;[key_name(recipient, X, 0)]:</B> [keywordparsedmsg]</span>" )
 

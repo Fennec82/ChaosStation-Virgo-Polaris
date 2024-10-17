@@ -51,7 +51,7 @@
 		return
 
 	var/confirm = tgui_alert(usr, "Do you want to try to rotate \the [src]?", "[name]", list("Yes", "No"))
-	if(confirm == "No")
+	if(confirm != "Yes")
 		visible_message(\
 			"<span class='notice'>[user.name] decides not to try turning \the [src].</span>",\
 			"<span class='notice'>You decide not to try turning \the [src].</span>")
@@ -59,7 +59,7 @@
 
 	var/new_bearing
 	if(free_rotate)
-		new_bearing = tgui_input_number(usr, "What bearing do you want to rotate \the [src] to?", "[name]")
+		new_bearing = tgui_input_number(usr, "What bearing do you want to rotate \the [src] to?", "[name]", 0, 360, 0)
 		new_bearing = round(new_bearing)
 		if(new_bearing <= -1 || new_bearing > 360)
 			to_chat(user, "<span class='warning'>Rotating \the [src] [new_bearing] degrees would be a waste of time.</span>")
@@ -157,7 +157,7 @@
 	..()
 
 	var/confirm = tgui_alert(usr, "Do you want to try to rotate \the [src]?", "[name]", list("Yes", "No"))
-	if(confirm == "No")
+	if(confirm != "Yes")
 		visible_message(\
 			"<span class='notice'>[user.name] decides not to try turning \the [src].</span>",\
 			"<span class='notice'>You decide not to try turning \the [src].</span>")
@@ -176,7 +176,7 @@
 
 	var/new_bearing
 	if(free_rotate)
-		new_bearing = tgui_input_number(usr, "What bearing do you want to rotate \the [src] to?", "[name]")
+		new_bearing = tgui_input_number(usr, "What bearing do you want to rotate \the [src] to?", "[name]", 0, 360, 0)
 		new_bearing = round(new_bearing)
 		if(new_bearing <= -1 || new_bearing > 360)
 			to_chat(user, "<span class='warning'>Rotating \the [src] [new_bearing] degrees would be a waste of time.</span>")
@@ -186,7 +186,7 @@
 		new_bearing = round(compass_directions[choice])
 
 	confirm = tgui_alert(usr, "Are you certain you want to rotate \the [src]?", "[name]", list("Yes", "No"))
-	if(confirm == "No")
+	if(confirm != "Yes")
 		visible_message(\
 			"<span class='notice'>[user.name] decides not to try turning \the [src].</span>",\
 			"<span class='notice'>You decide not to try turning \the [src].</span>")

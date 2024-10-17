@@ -194,10 +194,10 @@ GLOBAL_DATUM_INIT(mhelp_tickets, /datum/mentor_help_tickets, new)
 	var/chat_msg = "<span class='notice'>(<A HREF='?_src_=mentorholder;mhelp=[ref_src];[HrefToken()];mhelp_action=escalate'>ESCALATE</A>) Ticket [TicketHref("#[id]", ref_src)]<b>: [LinkedReplyName(ref_src)]:</b> [msg]</span>"
 	AddInteraction("<font color='red'>[LinkedReplyName(ref_src)]: [msg]</font>")
 	for (var/client/C in GLOB.mentors)
-		if (C.is_preference_enabled(/datum/client_preference/play_mentorhelp_ping))
+		if (C.prefs?.read_preference(/datum/preference/toggle/play_mentorhelp_ping))
 			C << 'sound/effects/mentorhelp.mp3'
 	for (var/client/C in GLOB.admins)
-		if (C.is_preference_enabled(/datum/client_preference/play_mentorhelp_ping))
+		if (C.prefs?.read_preference(/datum/preference/toggle/play_mentorhelp_ping))
 			C << 'sound/effects/mentorhelp.mp3'
 	message_mentors(chat_msg)
 
@@ -429,6 +429,25 @@ GLOBAL_DATUM_INIT(mhelp_tickets, /datum/mentor_help_tickets, new)
 	if(!msg)
 		return
 
+	// Making sure there's actually a mentor or admin who can respond.
+	var/list/admins = get_admin_counts()
+	var/list/activeAdmins = admins["present"]
+	var/list/mentors = GLOB.mentors
+	if(!mentors.len && !activeAdmins.len)
+		var/choice = tgui_alert(usr, "There are no active admins or mentors online. Would you like to make an ahelp instead, so that staff is notified of your issue? \
+		Alternatively, you may go to the discord yourself and repeat your question in #cadet-academy. Please note, if choosing the later, do not include current-round information.",
+		"Send to discord?", list("Admin-help!", "Still mentorhelp!", "Cancel"))
+		if(choice == "Admin-help!")
+			usr.client.adminhelp(msg)
+			src.verbs -= /client/verb/mentorhelp
+			spawn(1200)
+				src.verbs += /client/verb/mentorhelp // 2 minute cd to prevent abusing this to spam admins.
+			return
+		else if(!choice || choice == "Cancel")
+			return
+
+
+
 	//remove out adminhelp verb temporarily to prevent spamming of admins.
 	src.verbs -= /client/verb/mentorhelp
 	spawn(600)
@@ -436,7 +455,10 @@ GLOBAL_DATUM_INIT(mhelp_tickets, /datum/mentor_help_tickets, new)
 
 	feedback_add_details("admin_verb","Mentorhelp") //If you are copy-pasting this, ensure the 2nd parameter is unique to the new proc!
 	if(current_mentorhelp)
-		if(tgui_alert(usr, "You already have a ticket open. Is this for the same issue?","Duplicate?",list("Yes","No")) != "No")
+		var/input = tgui_alert(usr, "You already have a ticket open. Is this for the same issue?","Duplicate?",list("Yes","No"))
+		if(!input)
+			return
+		if(input == "Yes")
 			if(current_mentorhelp)
 				log_admin("Mentorhelp: [key_name(src)]: [msg]")
 				current_mentorhelp.MessageNoRecipient(msg)

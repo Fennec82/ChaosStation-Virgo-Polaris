@@ -1,6 +1,7 @@
 import { BooleanLike } from 'common/react';
+
 import { useBackend } from '../backend';
-import { Button, Box, Flex, LabeledList, Section } from '../components';
+import { Box, Button, Flex, LabeledList, Section } from '../components';
 import { Window } from '../layouts';
 
 type Data = {
@@ -17,7 +18,7 @@ export const ExonetNode = (props) => {
   const { on, allowPDAs, allowCommunicators, allowNewscasters, logs } = data;
 
   return (
-    <Window width={400} height={400} resizable>
+    <Window width={400} height={400}>
       <Window.Content scrollable>
         <Section
           title="Status"
@@ -25,34 +26,39 @@ export const ExonetNode = (props) => {
             <Button
               icon="power-off"
               selected={on}
-              content={'Power ' + (on ? 'On' : 'Off')}
               onClick={() => act('toggle_power')}
-            />
-          }>
+            >
+              {'Power ' + (on ? 'On' : 'Off')}
+            </Button>
+          }
+        >
           <LabeledList>
             <LabeledList.Item label="Incoming PDA Messages">
               <Button
                 icon="power-off"
                 selected={allowPDAs}
-                content={allowPDAs ? 'Open' : 'Closed'}
                 onClick={() => act('toggle_PDA_port')}
-              />
+              >
+                {allowPDAs ? 'Open' : 'Closed'}
+              </Button>
             </LabeledList.Item>
             <LabeledList.Item label="Incoming Communicators">
               <Button
                 icon="power-off"
                 selected={allowCommunicators}
-                content={allowCommunicators ? 'Open' : 'Closed'}
                 onClick={() => act('toggle_communicator_port')}
-              />
+              >
+                {allowCommunicators ? 'Open' : 'Closed'}
+              </Button>
             </LabeledList.Item>
             <LabeledList.Item label="Incoming Newscaster Content">
               <Button
                 icon="power-off"
                 selected={allowNewscasters}
-                content={allowNewscasters ? 'Open' : 'Closed'}
                 onClick={() => act('toggle_newscaster_port')}
-              />
+              >
+                {allowNewscasters ? 'Open' : 'Closed'}
+              </Button>
             </LabeledList.Item>
           </LabeledList>
         </Section>

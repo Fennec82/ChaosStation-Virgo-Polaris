@@ -47,6 +47,7 @@
 	var/last_message_count = 0
 	var/ircreplyamount = 0
 	var/entity_narrate_holder //Holds /datum/entity_narrate when using the relevant admin verbs.
+	var/fakeConversations //Holds fake PDA conversations for event set-up
 
 		/////////
 		//OTHER//
@@ -146,3 +147,6 @@
 	var/last_move_dir_pressed = NONE
 
 	#endif
+
+	/// If this client has been fully initialized or not
+	var/fully_created = FALSE

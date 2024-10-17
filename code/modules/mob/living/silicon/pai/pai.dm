@@ -57,7 +57,8 @@
 		"Catslug" = "catslug",
 		"Car" = "car",
 		"Type One" = "typeone",
-		"Type Thirteen" = "13"
+		"Type Thirteen" = "13",
+		"Protogen Dog" = "pai-protodog"
 		//VOREStation Addition End
 		)
 
@@ -513,7 +514,7 @@
 					if(radio)
 						radio.recalculateChannels()
 					return
-				if("Cancel")
+				if("Cancel", null)
 					return
 		else if (istype(W, /obj/item/weapon/card/id) && idaccessible == 0)
 			to_chat(user, "<span class='notice'>[src] is not accepting access modifcations at this time.</span>")

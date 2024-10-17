@@ -10,15 +10,15 @@
 	ckeywhitelist = list("This entry should never be choosable with this variable set.") //If it does, then that means somebody fucked up the whitelist system pretty hard
 	character_name = list("This entry should never be choosable with this variable set.")
 	cost = 0
+
 /*
 /datum/gear/fluff/testhorn
 	path = /obj/item/weapon/bikehorn
 	display_name = "Airhorn - Example Item"
 	description = "An example item that you probably shouldn't see!"
-	ckeywhitelist = list("mewchild")
+	ckeywhitelist = list("your_ckey_here")
 	allowed_roles = list("Engineer")
 */
-
 
 /datum/gear/fluff/collar //Use this as a base path for collars if you'd like to set tags in loadout. Make sure you don't use apostrophes in the display name or this breaks!
 	slot = slot_tie
@@ -786,6 +786,14 @@
 	ckeywhitelist = list("luminescentring")
 	character_name = list("Briana Moore")
 
+/datum/gear/fluff/zharritool
+	path = /obj/item/weapon/tool/transforming/altevian
+	display_name = "Zharri's Custom Omni-Tool"
+	description = "A Hull Systems Omni-Tool capable of temporarily shrinking to handheld sizes for even the most delicate work."
+	ckeywhitelist = list("lewzharri")
+	character_name = list ("Kovgam Zharri")
+	allowed_roles = list("Roboticist","Engineer","Scientist","Xenobiologist","Xenobotanist","Research Director")
+
 //  M CKEYS
 /datum/gear/fluff/phi_box
 	path = /obj/item/weapon/storage/box/fluff/phi
@@ -1321,6 +1329,13 @@
 	character_name = list("Bradley Khatibi")
 
 //  V CKEYS
+
+/datum/gear/fluff/valkhorns
+	path = /obj/item/clothing/ears/earring/fluff/valkhorns
+	display_name = "Valkaerie's Horns"
+	ckeywhitelist = list("valkaerie")
+	character_name = list("Valkaerie Stoze")
+
 /datum/gear/fluff/verie_suit
 	path = /obj/item/clothing/under/fluff/verie
 	display_name = "Verie's Salacious Suit"

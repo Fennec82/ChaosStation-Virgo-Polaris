@@ -15,7 +15,7 @@ export const pAIDirectives = (props) => {
   const { master, dna, prime, supplemental } = data;
 
   return (
-    <Window width={450} height={600} resizable>
+    <Window width={450} height={600}>
       <Window.Content scrollable>
         <Section title="Master">
           <LabeledList>
@@ -23,11 +23,9 @@ export const pAIDirectives = (props) => {
               {(master && (
                 <Box>
                   {master} ({dna})
-                  <Button
-                    icon="syringe"
-                    content="Request Sample"
-                    onClick={() => act('getdna')}
-                  />
+                  <Button icon="syringe" onClick={() => act('getdna')}>
+                    Request Sample
+                  </Button>
                 </Box>
               )) || <Box>None</Box>}
             </LabeledList.Item>

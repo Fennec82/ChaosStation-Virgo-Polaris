@@ -375,11 +375,11 @@
 		return 1
 
 	var/choice = tgui_alert(usr, "The shuttle is currently docked! Please undock before continuing.","Error",list("Cancel","Force Launch"))
-	if(choice == "Cancel")
+	if(!choice || choice == "Cancel")
 		return 0
 
 	choice = tgui_alert(usr, "Forcing a shuttle launch while docked may result in severe injury, death and/or damage to property. Are you sure you wish to continue?", "Force Launch", list("Force Launch", "Cancel"))
-	if(choice == "Cancel")
+	if(choice || choice == "Cancel")
 		return 0
 
 	return 1
@@ -409,10 +409,10 @@
 
 /obj/shuttle_connector/Initialize()
 	. = ..()
-	GLOB.shuttle_added.register_global(src, PROC_REF(setup_routes))
+	RegisterSignal(SSshuttles,COMSIG_OBSERVER_SHUTTLE_ADDED,PROC_REF(setup_routes))
 
 /obj/shuttle_connector/Destroy()
-	GLOB.shuttle_added.unregister_global(src, PROC_REF(setup_routes))
+	UnregisterSignal(SSshuttles,COMSIG_OBSERVER_SHUTTLE_ADDED)
 	. = ..()
 
 // This is called whenever a shuttle is initialized.  If its our shuttle, do our thing!

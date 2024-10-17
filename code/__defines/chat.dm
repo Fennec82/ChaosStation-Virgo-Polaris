@@ -11,7 +11,9 @@
 #define MESSAGE_TYPE_SYSTEM "system"
 #define MESSAGE_TYPE_LOCALCHAT "localchat"
 #define MESSAGE_TYPE_NPCEMOTE "npcemote"
+#define MESSAGE_TYPE_MULTIZCHAT "multizsay"
 #define MESSAGE_TYPE_PLOCALCHAT "plocalchat"
+#define MESSAGE_TYPE_HIVEMIND "hivemind"
 #define MESSAGE_TYPE_RADIO "radio"
 #define MESSAGE_TYPE_NIF "nif"
 #define MESSAGE_TYPE_INFO "info"
@@ -32,3 +34,6 @@
 #define MESSAGE_TYPE_ADMINLOG "adminlog"
 #define MESSAGE_TYPE_ATTACKLOG "attacklog"
 #define MESSAGE_TYPE_DEBUG "debug"
+
+/// Adds a generic box around whatever message you're sending in chat. Really makes things stand out.
+#define examine_block(str) ("<div class='examine_block'>" + str + "</div>")

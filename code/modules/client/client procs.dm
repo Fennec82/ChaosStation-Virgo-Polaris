@@ -5,7 +5,7 @@
 #define MIN_CLIENT_VERSION	0		//Just an ambiguously low version for now, I don't want to suddenly stop people playing.
 									//I would just like the code ready should it ever need to be used.
 
-//#define TOPIC_DEBUGGING 1
+//# define TOPIC_DEBUGGING 1
 
 	/*
 	When somebody clicks a link in game, this Topic is called first.
@@ -127,6 +127,9 @@
 		asset_cache_preload_data(href_list["asset_cache_preload_data"])
 		return
 
+	if(href_list["commandbar_typing"])
+		handle_commandbar_typing(href_list)
+
 	switch(href_list["_src_"])
 		if("holder")	hsrc = holder
 		if("mentorholder")	hsrc = (check_rights(R_ADMIN, 0) ? holder : mentorholder)
@@ -179,6 +182,8 @@
 	GLOB.directory[ckey] = src
 
 	// Instantiate tgui panel
+	tgui_say = new(src, "tgui_say")
+	initialize_commandbar_spy()
 	tgui_panel = new(src, "browseroutput")
 
 	GLOB.ahelp_tickets.ClientLogin(src)
@@ -196,12 +201,15 @@
 
 	//preferences datum - also holds some persistant data for the client (because we may as well keep these datums to a minimum)
 	prefs = preferences_datums[ckey]
-	if(!prefs)
+	if(prefs)
+		prefs.client = src
+		prefs.load_savefile() // just to make sure we have the latest data
+		prefs.apply_all_client_preferences()
+	else
 		prefs = new /datum/preferences(src)
 		preferences_datums[ckey] = prefs
 	prefs.last_ip = address				//these are gonna be used for banning
 	prefs.last_id = computer_id			//these are gonna be used for banning
-	prefs.client = src // Only relevant if we reloaded it from the global list, otherwise prefs/New sets it
 
 	hook_vr("client_new",list(src)) //VOREStation Code. For now this only loads vore prefs, so better put before mob.Login() call but after normal prefs are loaded.
 
@@ -211,6 +219,7 @@
 		prefs.selecting_slots = FALSE
 
 	// Initialize tgui panel
+	tgui_say.initialize()
 	tgui_panel.initialize()
 
 	connection_time = world.time
@@ -246,11 +255,14 @@
 		void = new()
 	screen += void
 
+	//disabled because we don't use the ingame changelog system any more
+	/*
 	if((prefs.lastchangelog != changelog_hash) && isnewplayer(src.mob)) //bolds the changelog button on the interface so we know there are updates.
 		to_chat(src, "<span class='info'>You have unread updates in the changelog.</span>")
 		winset(src, "rpane.changelog", "background-color=#eaeaea;font-style=bold")
 		if(config.aggressive_changelog)
 			src.changes()
+	*/
 
 	if(config.paranoia_logging)
 		var/alert = FALSE //VOREStation Edit start.
@@ -262,28 +274,41 @@
 			alert = TRUE
 		if(alert)
 			for(var/client/X in GLOB.admins)
-				if(X.is_preference_enabled(/datum/client_preference/holder/play_adminhelp_ping))
+				if(X.prefs?.read_preference(/datum/preference/toggle/holder/play_adminhelp_ping))
 					X << 'sound/effects/tones/newplayerping.ogg'
 				window_flash(X)
 		//VOREStation Edit end.
+	fully_created = TRUE
+	attempt_auto_fit_viewport()
 
 	//////////////
 	//DISCONNECT//
 	//////////////
 /client/Del()
+	if(!gc_destroyed)
+		gc_destroyed = world.time
+		if (!QDELING(src))
+			stack_trace("Client does not purport to be QDELING, this is going to cause bugs in other places!")
+
+		GLOB.ahelp_tickets.ClientLogout(src)
+		GLOB.mhelp_tickets.ClientLogout(src)
+
+		// Yes this is the same as what's found in qdel(). Yes it does need to be here
+		// Get off my back
+		SEND_SIGNAL(src, COMSIG_PARENT_QDELETING, TRUE)
+		Destroy() //Clean up signals and timers.
+	return ..()
+
+/client/Destroy()
 	if(holder)
 		holder.owner = null
 		GLOB.admins -= src
 	if (mentorholder)
 		mentorholder.owner = null
 		GLOB.mentors -= src
-	GLOB.ahelp_tickets.ClientLogout(src)
-	GLOB.mhelp_tickets.ClientLogout(src)
 	GLOB.directory -= ckey
 	GLOB.clients -= src
-	return ..()
 
-/client/Destroy()
 	..()
 	return QDEL_HINT_HARDDEL_NOW
 
@@ -448,7 +473,8 @@
 		src << browse('code/modules/asset_cache/validate_assets.html', "window=asset_cache_browser")
 
 		//Precache the client with all other assets slowly, so as to not block other browse() calls
-		addtimer(CALLBACK(GLOBAL_PROC, GLOBAL_PROC_REF(getFilesSlow), src, SSassets.preload, FALSE), 5 SECONDS)
+		if (config.asset_simple_preload)
+			addtimer(CALLBACK(SSassets.transport, TYPE_PROC_REF(/datum/asset_transport, send_assets_slow), src, SSassets.transport.preload), 5 SECONDS)
 
 /mob/proc/MayRespawn()
 	return 0
@@ -465,6 +491,12 @@
 	set category = "Preferences"
 	if(prefs)
 		prefs.ShowChoices(usr)
+
+/client/verb/game_options()
+	set name = "Game Options"
+	set category = "Preferences"
+	if(prefs)
+		prefs.tgui_interact(usr)
 
 /client/proc/findJoinDate()
 	var/list/http = world.Export("http://byond.com/members/[ckey]?format=text")
@@ -581,6 +613,15 @@
 		winset(usr, "mainwindow", "can-resize=true")
 		winset(usr, "mainwindow", "is-maximized=false")
 		winset(usr, "mainwindow", "on-size=attempt_auto_fit_viewport") // The attempt_auto_fit_viewport() proc is not implemented yet
+	attempt_auto_fit_viewport()
+
+/client/verb/toggle_verb_panel()
+	set name = "Toggle Verbs"
+	set category = "OOC"
+
+	show_verb_panel = !show_verb_panel
+
+	to_chat(usr, "Your verbs are now [show_verb_panel ? "on" : "off. To turn them back on, type 'toggle-verbs' into the command bar."].")
 
 /*
 /client/verb/toggle_status_bar()

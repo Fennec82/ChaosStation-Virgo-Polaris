@@ -150,7 +150,7 @@ var/list/mentor_verbs_default = list(
 
 	if(MH)
 		message_mentors("<span class='mentor_channel'>[src] has started replying to [C]'s mentor help.</span>")
-	var/msg = tgui_input_text(src,"Message:", "Private message to [C]")
+	var/msg = tgui_input_text(src,"Message:", "Private message to [C]", multiline = TRUE)
 	if (!msg)
 		message_mentors("<span class='mentor_channel'>[src] has cancelled their reply to [C]'s mentor help.</span>")
 		return
@@ -168,7 +168,9 @@ var/list/mentor_verbs_default = list(
 	set hidden = 1
 
 	var/mhelp = tgui_alert(usr, "Select the help you need.","Request for Help",list("Adminhelp","Mentorhelp")) == "Mentorhelp"
-	var/msg = tgui_input_text(usr, "Input your request for help.", "Request for Help")
+	if(!mhelp)
+		return
+	var/msg = tgui_input_text(usr, "Input your request for help.", "Request for Help", multiline = TRUE)
 
 	if (mhelp)
 		mentorhelp(msg)
@@ -202,7 +204,7 @@ var/list/mentor_verbs_default = list(
 
 	//get message text, limit it's length.and clean/escape html
 	if(!msg)
-		msg = tgui_input_text(src,"Message:", "Mentor-PM to [whom]")
+		msg = tgui_input_text(src,"Message:", "Mentor-PM to [whom]", multiline = TRUE)
 
 		if(!msg)
 			return
@@ -252,7 +254,7 @@ var/list/mentor_verbs_default = list(
 
 	log_admin("[key_name(src)]->[key_name(recipient)]: [msg]")
 
-	if(recipient.is_preference_enabled(/datum/client_preference/play_mentorhelp_ping))
+	if(recipient.prefs?.read_preference(/datum/preference/toggle/play_mentorhelp_ping))
 		recipient << 'sound/effects/mentorhelp.mp3'
 
 	for(var/client/C in GLOB.mentors)

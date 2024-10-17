@@ -9,7 +9,7 @@
 	name = "You should not see this..."
 	icon = 'icons/mob/vore/wings_vr.dmi'
 	do_colouration = 0 //Set to 1 to enable coloration using the tail color.
-	species_allowed = list(SPECIES_HUMAN, SPECIES_SKRELL, SPECIES_UNATHI, SPECIES_TAJ, SPECIES_TESHARI, SPECIES_NEVREAN, SPECIES_AKULA, SPECIES_SERGAL, SPECIES_FENNEC, SPECIES_ZORREN_HIGH, SPECIES_VULPKANIN, SPECIES_XENOCHIMERA, SPECIES_XENOHYBRID, SPECIES_VASILISSAN, SPECIES_RAPALA, SPECIES_PROTEAN, SPECIES_ALRAUNE, SPECIES_WEREBEAST, SPECIES_SHADEKIN, SPECIES_SHADEKIN_CREW, SPECIES_ALTEVIAN) //This lets all races use
+	species_allowed = list(SPECIES_HUMAN, SPECIES_SKRELL, SPECIES_UNATHI, SPECIES_TAJ, SPECIES_TESHARI, SPECIES_NEVREAN, SPECIES_AKULA, SPECIES_SERGAL, SPECIES_FENNEC, SPECIES_ZORREN_HIGH, SPECIES_VULPKANIN, SPECIES_XENOCHIMERA, SPECIES_XENOHYBRID, SPECIES_VASILISSAN, SPECIES_RAPALA, SPECIES_PROTEAN, SPECIES_ALRAUNE, SPECIES_WEREBEAST, SPECIES_SHADEKIN, SPECIES_SHADEKIN_CREW, SPECIES_ALTEVIAN, SPECIES_LLEILL, SPECIES_HANNER) //This lets all races use
 	color_blend_mode = ICON_ADD // Only appliciable if do_coloration = 1
 	var/wing_offset = 0
 	var/multi_dir = FALSE		// Does it use different sprites at different layers? _front will be added for sprites on low layer, _back to high layer
@@ -18,7 +18,7 @@
 	name = "pharoah hound tail (Shock Diamond)"
 	desc = ""
 	icon_state = "shock"
-	ckeys_allowed = list("icowom")
+//	ckeys_allowed = list("icowom")
 
 /datum/sprite_accessory/wing/featheredlarge //Made by Natje!
 	name = "large feathered wings (colorable)"
@@ -56,7 +56,7 @@
 	name = "citheronia wings"
 	desc = ""
 	icon_state = "citheronia_wings"
-	ckeys_allowed = list("kira72")
+//	ckeys_allowed = list("kira72")
 
 /datum/sprite_accessory/wing/feathered
 	name = "feathered wings, colorable"
@@ -192,19 +192,19 @@
 	name = "demon wings (Sepulchre)"
 	desc = ""
 	icon_state = "sepulchre_wings"
-	ckeys_allowed = list("sepulchre")
+//	ckeys_allowed = list("sepulchre")
 
 /datum/sprite_accessory/wing/miria_fluffdragon
 	name = "fluffdragon wings (Miria Masters)"
 	desc = ""
 	icon_state = "miria-fluffdragontail"
-	ckeys_allowed = list("miriamasters")
+//	ckeys_allowed = list("miriamasters")
 
 /datum/sprite_accessory/wing/scree
 	name = "green taj wings (Scree)"
 	desc = ""
 	icon_state = "scree-wings"
-	ckeys_allowed = list("scree")
+//	ckeys_allowed = list("scree")
 
 /datum/sprite_accessory/wing/liquidfirefly_gazer //I g-guess this could be considered wings?
 	name = "gazer eyestalks"
@@ -236,7 +236,7 @@
 	name = "wingwolf wings (Kerena)"
 	desc = ""
 	icon_state = "kerena-wings"
-	ckeys_allowed = list("somekindofpony")
+//	ckeys_allowed = list("somekindofpony")
 
 /datum/sprite_accessory/wing/snag
 	name = "xenomorph backplate"
@@ -325,7 +325,7 @@
 	desc = ""
 	icon = 'icons/mob/vore/wings_vr.dmi'
 	icon_state = "feathered_kara"
-	ckeys_allowed = list("satinisle")
+//	ckeys_allowed = list("satinisle")
 
 /datum/sprite_accessory/wing/winglets //smol wingarms at the elbow
 	name = "feathered winglets"
@@ -367,6 +367,26 @@
 	extra_overlay = "feather2_tricolor-1"
 	extra_overlay2 = "feather2_tricolor-2"
 
+/datum/sprite_accessory/wing/speckled_tricolor
+	name = "large speckled leather wings, tricolor"
+	desc = ""
+	// not ckey locked, just couldn't think of a better icon state name
+	icon_state = "shadow_tricolor"
+	do_colouration = 1
+	color_blend_mode = ICON_MULTIPLY
+	extra_overlay = "shadow_tricolor-1"
+	extra_overlay2 = "shadow_tricolor-2"
+
+/datum/sprite_accessory/wing/speckled_tricolor
+	name = "large speckled leather wings, tricolor, sparkling"
+	desc = ""
+	// not ckey locked, just couldn't think of a better icon state name
+	icon_state = "shadow_tricolor"
+	do_colouration = 1
+	color_blend_mode = ICON_MULTIPLY
+	extra_overlay = "shadow_tricolor-1"
+	extra_overlay2 = "shadow_tricolor-2-sparkle"
+
 // dino wings
 /datum/sprite_accessory/wing/pterodactyl_wings
 	name = "pterodactyl wings"
@@ -375,3 +395,18 @@
 	do_colouration = 1
 	color_blend_mode = ICON_MULTIPLY
 	extra_overlay = "pterodactyl_wing_membrane"
+
+/datum/sprite_accessory/wing/kaiju_spines_a
+	name = "kaiju spines A, colorable"
+	desc = ""
+	icon_state = "kaiju_spikes_a"
+	do_colouration = 1
+	color_blend_mode = ICON_MULTIPLY
+
+/datum/sprite_accessory/wing/kaiju_spines_a_glow
+	name = "kaiju spines A, colorable, glow"
+	desc = ""
+	icon_state = "kaiju_spikes_a"
+	do_colouration = 1
+	color_blend_mode = ICON_MULTIPLY
+	extra_overlay = "kaiju_spikes_a_glow"

@@ -155,6 +155,7 @@
 /mob/living/silicon/robot/handle_regular_hud_updates()
 	var/fullbright = FALSE
 	var/seemeson = FALSE
+	var/seejanhud = src.sight_mode & BORGJAN
 
 	var/area/A = get_area(src)
 	if(A?.no_spoilers)
@@ -188,6 +189,10 @@
 		src.see_in_dark = 8
 		src.see_invisible = SEE_INVISIBLE_LEVEL_TWO
 		fullbright = TRUE
+	else if (src.sight_mode & BORGANOMALOUS)
+		src.see_in_dark = 8
+		src.see_invisible = INVISIBILITY_SHADEKIN
+		fullbright = TRUE
 	else if (!seedarkness)
 		src.sight &= ~SEE_MOBS
 		src.sight &= ~SEE_TURFS
@@ -205,6 +210,7 @@
 	if(plane_holder)
 		plane_holder.set_vis(VIS_FULLBRIGHT,fullbright)
 		plane_holder.set_vis(VIS_MESONS,seemeson)
+		plane_holder.set_vis(VIS_JANHUD,seejanhud)
 
 	..()
 
@@ -227,21 +233,20 @@
 					else
 						src.healths.icon_state = "health6"
 			else
-				switch(health)
-					if(200 to INFINITY)
-						src.healths.icon_state = "health0"
-					if(150 to 200)
-						src.healths.icon_state = "health1"
-					if(100 to 150)
-						src.healths.icon_state = "health2"
-					if(50 to 100)
-						src.healths.icon_state = "health3"
-					if(0 to 50)
-						src.healths.icon_state = "health4"
-					if(config.health_threshold_dead to 0)
-						src.healths.icon_state = "health5"
-					else
-						src.healths.icon_state = "health6"
+				if(health >= 200)
+					src.healths.icon_state = "health0"
+				else if(health >= 150)
+					src.healths.icon_state = "health1"
+				else if(health >= 100)
+					src.healths.icon_state = "health2"
+				else if(health >= 50)
+					src.healths.icon_state = "health3"
+				else if(health >= 0)
+					src.healths.icon_state = "health4"
+				else if(health >= config.health_threshold_dead)
+					src.healths.icon_state = "health5"
+				else
+					src.healths.icon_state = "health6"
 		else
 			src.healths.icon_state = "health7"
 
@@ -324,7 +329,7 @@
 	if(client)
 		client.screen -= contents
 		for(var/obj/I in contents)
-			if(I && !(istype(I,/obj/item/weapon/cell) || istype(I,/obj/item/device/radio)  || istype(I,/obj/machinery/camera) || istype(I,/obj/item/device/mmi)))
+			if(I && !(istype(I,/obj/item/cell) || istype(I,/obj/item/radio)  || istype(I,/obj/machinery/camera) || istype(I,/obj/item/mmi)))
 				client.screen += I
 	if(module_state_1)
 		module_state_1:screen_loc = ui_inv1
@@ -339,7 +344,7 @@
 		killswitch_time --
 		if(killswitch_time <= 0)
 			if(src.client)
-				to_chat(src, "<span class='danger'>Killswitch Activated</span>")
+				to_chat(src, span_danger("Killswitch Activated"))
 			killswitch = 0
 			spawn(5)
 				gib()
@@ -350,7 +355,7 @@
 		weaponlock_time --
 		if(weaponlock_time <= 0)
 			if(src.client)
-				to_chat(src, "<span class='danger'>Weapon Lock Timed Out!</span>")
+				to_chat(src, span_danger("Weapon Lock Timed Out!"))
 			weapon_lock = 0
 			weaponlock_time = 120
 
@@ -370,8 +375,8 @@
 		IgniteMob()
 
 /mob/living/silicon/robot/handle_light()
-	. = ..()
-	if(. == FALSE) // If no other light sources are on.
-		if(lights_on)
-			set_light(integrated_light_power, 1, "#FFFFFF")
-			return TRUE
+	if(lights_on)
+		set_light(integrated_light_power, 1, "#FFFFFF")
+		return TRUE
+	else
+		. = ..()

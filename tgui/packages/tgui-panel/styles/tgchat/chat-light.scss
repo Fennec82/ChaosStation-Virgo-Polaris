@@ -240,6 +240,10 @@ a.popt {
   color: #638500;
 }
 
+.underline {
+  text-decoration: underline;
+}
+
 /* ADD HERE FOR BOLD */
 
 .bold,
@@ -385,15 +389,29 @@ img.icon.bigicon {
   font-weight: bold;
 }
 
+.world {
+  font-weight: bold;
+}
+
 .say,
 .emote,
 .emotesubtle,
+.multizsay,
 .npcemote,
 .npcsay,
 .infoplain,
 .oocplain,
 .warningplain,
-.chatexport {
+.chatexport,
+.body {
+}
+
+.warningplain {
+  font-style: italic;
+}
+
+.hivemind {
+  font-style: italic;
 }
 
 .nif {
@@ -414,9 +432,10 @@ img.icon.bigicon {
 }
 
 .binarysay {
+  font-style: italic;
   color: #20c20e;
   background-color: #000000;
-  display: block;
+  display: inline-block;
 }
 
 .binarysay a {
@@ -680,6 +699,10 @@ h2.alert {
 
 .green {
   color: #03ff39;
+}
+
+.darkgreen {
+  color: #008000;
 }
 
 .grey {
@@ -1255,6 +1278,24 @@ $border-width-px: $border-width * 1px;
   flex-direction: column;
 }
 
+.ooc_alert {
+  background: #bdc8ff;
+  border: 1px solid #002eb8;
+  margin: 0.5em;
+  padding: 0.5em 0.5em 0.5em 0.2em;
+  color: #00283a;
+  font-weight: bold;
+  display: flex;
+  flex-direction: column;
+}
+
+.ooc_announcement_text {
+  color: #002eb8;
+  padding: 0.5em 0 0 0.35em;
+  display: flex;
+  flex-direction: column;
+}
+
 @each $color-name, $color-value in $alert-stripe-colors {
   .chat_alert_#{$color-name} {
     color: #ffffff;
@@ -1421,9 +1462,18 @@ $border-width-px: $border-width * 1px;
   font-family: 'Segoe Script Bold', 'Segoe Script', sans-serif, Verdana;
 }
 
+.marish {
+  color: #9e31a4;
+}
+
 .shadekin {
   color: #be3cc5;
   font-size: 150%;
   font-weight: bold;
   font-family: 'Gabriola', cursive, sans-serif;
+  line-height: 0.3;
+}
+
+.wingdings {
+  font-family: Wingdings, Webdings;
 }

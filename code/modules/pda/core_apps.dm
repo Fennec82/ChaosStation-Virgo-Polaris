@@ -60,7 +60,7 @@
 
 		// display greeting!
 		greeted = TRUE
-		note = "Your station has chosen the [pda.model_name]!"
+		note = "Thank you for choosing the [pda.model_name]!"
 		notetitle = "Congratulations!"
 
 /datum/data/pda/app/notekeeper/update_ui(mob/user as mob, list/data)
@@ -172,18 +172,18 @@
 	if(istype( usr, /mob/living/carbon/human ))
 		var/mob/living/carbon/human/H = usr
 		var/obj/item/I = H.get_active_hand()
-		if(istype(I,/obj/item/weapon/paper))
-			var/obj/item/weapon/paper/P = I
+		if(istype(I,/obj/item/paper))
+			var/obj/item/paper/P = I
 			if(isnull(P.info) || P.info == "" )
 				var/titlenote = "Note [alphabet_uppercase[currentnote]]"
 				if(!isnull(notetitle) && notetitle != "")
 					titlenote = notetitle
-				to_chat(usr, "<span class='notice'>Successfully printed [titlenote]!</span>")
+				to_chat(usr, span_notice("Successfully printed [titlenote]!"))
 				P.set_content( pencode2html(note), titlenote)
 			else
-				to_chat(usr, "<span class='notice'>You can only print to empty paper!</span>")
+				to_chat(usr, span_notice("You can only print to empty paper!"))
 		else
-			to_chat(usr, "<span class='notice'>You must be holding paper for the pda to print to!</span>")
+			to_chat(usr, span_notice("You must be holding paper for the pda to print to!"))
 
 
 /datum/data/pda/app/notekeeper/proc/changetonote(var/noteindex)
@@ -314,7 +314,9 @@
 	// Compile all the newscasts
 	for(var/datum/feed_channel/channel in news_network.network_channels)
 		if(!channel.censored)
+			var/index = 0
 			for(var/datum/feed_message/FM in channel.messages)
+				index++
 				var/body = replacetext(FM.body, "\n", "<br>")
 				news[++news.len] = list(
 							"channel" = channel.channel_name,
@@ -324,7 +326,8 @@
 							"time_stamp" = FM.time_stamp,
 							"has_image" = (FM.img != null),
 							"caption" = FM.caption,
-							"time" = FM.post_time
+							"time" = FM.post_time,
+							"index" = index
 							)
 
 	// Cut out all but the youngest three

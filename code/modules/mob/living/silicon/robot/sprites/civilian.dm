@@ -121,7 +121,7 @@
 
 /datum/robot_sprite/service/drone
 	name = "AG Model-Serv"
-	sprite_icon_state = "drone-crisis"
+	sprite_icon_state = "drone"
 	has_custom_open_sprites = TRUE
 
 /datum/robot_sprite/service/drone_hydro
@@ -241,7 +241,7 @@
 			ourborg.sprite_extra_customization += "boozehound"
 		ourborg.sprite_extra_customization["boozehound"] = choice
 		playsound(ourborg.loc, 'sound/effects/bubbles.ogg', 100, 0, 4)
-		to_chat(ourborg, "<span class='filter_notice'>Your tank now displays [choice]. Drink up and enjoy!</span>")
+		to_chat(ourborg, span_filter_notice("Your tank now displays [choice]. Drink up and enjoy!"))
 		ourborg.update_icon()
 		return 1
 
@@ -276,7 +276,6 @@
 	sprite_icon_state = "newmeka"
 	has_eye_light_sprites = TRUE
 	has_custom_open_sprites = TRUE
-	has_vore_belly_sprites = FALSE
 	rest_sprite_options = list("Default", "Sit")
 
 /datum/robot_sprite/dogborg/tall/service/mmeka
@@ -284,7 +283,6 @@
 	sprite_icon_state = "mmeka"
 	has_eye_light_sprites = TRUE
 	has_custom_open_sprites = TRUE
-	has_vore_belly_sprites = FALSE
 	rest_sprite_options = list("Default", "Sit")
 
 /datum/robot_sprite/dogborg/tall/service/fmeka
@@ -292,7 +290,6 @@
 	sprite_icon_state = "fmeka"
 	has_eye_light_sprites = TRUE
 	has_custom_open_sprites = TRUE
-	has_vore_belly_sprites = FALSE
 	rest_sprite_options = list("Default", "Sit")
 
 /datum/robot_sprite/dogborg/tall/service/k4t

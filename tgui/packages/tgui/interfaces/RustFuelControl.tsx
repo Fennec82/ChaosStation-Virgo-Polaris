@@ -1,10 +1,11 @@
-import { useBackend } from '../backend';
-import { Window } from '../layouts';
-import { Button, Section, Table } from '../components';
 import { BooleanLike } from 'common/react';
 
+import { useBackend } from '../backend';
+import { Button, Section, Table } from '../components';
+import { Window } from '../layouts';
+
 export const RustFuelControl = () => (
-  <Window width={627} height={700} resizable>
+  <Window width={627} height={700}>
     <Window.Content>
       <RustFuelContent />
     </Window.Content>
@@ -34,12 +35,11 @@ export const RustFuelContent = (props) => {
     <Section
       title="Fuel Injectors"
       buttons={
-        <Button
-          icon="pencil-alt"
-          content={'Set Tag'}
-          onClick={() => act('set_tag')}
-        />
-      }>
+        <Button icon="pencil-alt" onClick={() => act('set_tag')}>
+          Set Tag
+        </Button>
+      }
+    >
       <Table>
         <Table.Row header>
           <Table.Cell>Name</Table.Cell>
@@ -57,7 +57,6 @@ export const RustFuelContent = (props) => {
             <Table.Cell>
               <Button
                 icon="power-off"
-                content={fuel.active ? 'Online' : 'Offline'}
                 selected={fuel.active}
                 disabled={!fuel.deployed}
                 onClick={() =>
@@ -65,7 +64,9 @@ export const RustFuelContent = (props) => {
                     fuel: fuel.ref,
                   })
                 }
-              />
+              >
+                {fuel.active ? 'Online' : 'Offline'}
+              </Button>
             </Table.Cell>
             <Table.Cell>{fuel.fuel_amt}</Table.Cell>
             <Table.Cell>{fuel.fuel_type}</Table.Cell>

@@ -1,5 +1,5 @@
 /// Away Missions
-#if AWAY_MISSION_TEST
+#ifdef AWAY_MISSION_TEST
 #include "../expedition_vr/beach/beach.dmm"
 #include "../expedition_vr/beach/cave.dmm"
 #include "../expedition_vr/alienship/alienship.dmm"
@@ -236,6 +236,7 @@
 	name = "Redgate Destination"
 	z = Z_LEVEL_REDGATE
 	flags = MAP_LEVEL_PLAYER|MAP_LEVEL_SEALED
+	base_turf = /turf/simulated/floor/outdoors/rocks/caves
 
 /datum/map_template/common_lateload/redgate/on_map_loaded(z)
 	. = ..()
@@ -337,9 +338,27 @@
 	desc = "A world made up almost entirely of water, sprinkled with obscure marble structures."
 	mappath = 'maps/redgate/falls/falls.dmm'
 
+/datum/map_template/common_lateload/redgate/jungle
+	name = "Redgate - Jungle"
+	desc = "A fantasy town full of low tech stuff."
+	mappath = 'maps/redgate/jungle.dmm'
+
+/datum/map_template/common_lateload/redgate/jungle_underground
+	name = "Redgate - Jungle Underground"
+	desc = "A fantasy dungeon with lots of monsters and loot."
+	mappath = 'maps/redgate/jungle_underground.dmm'
+
+/obj/effect/landmark/map_data/jungle
+	height = 2
+
+/datum/map_template/common_lateload/redgate/facility
+	name = "Redgate - Facility"
+	desc = "A facility full of unusual experiments."
+	mappath = 'maps/redgate/facility.dmm'
+
 //////////////////////////////////////////////////////////////////////////////////////
 // Admin-use z-levels for loading whenever an admin feels like
-#if AWAY_MISSION_TEST
+#ifdef AWAY_MISSION_TEST
 #include "../submaps/admin_use_vr/spa.dmm"
 #endif
 #include "../submaps/admin_use_vr/fun.dm"
@@ -511,7 +530,7 @@
 	icon = 'icons/mob/vore_shadekin.dmi'
 	icon_state = "spawner"
 
-	faction = "shadekin"
+	faction = FACTION_SHADEKIN
 	prob_spawn = 1
 	prob_fall = 1
 	//guard = 10 //Don't wander too far, to stay alive.
@@ -575,7 +594,6 @@
 #include "../offmap_vr/om_ships/aro2.dm"
 #include "../offmap_vr/om_ships/aro3.dm"
 #include "../offmap_vr/om_ships/bearcat.dm"
-#include "../offmap_vr/om_ships/cruiser.dm"
 #include "../offmap_vr/om_ships/vespa.dm"
 #include "../offmap_vr/om_ships/generic_shuttle.dm"
 #include "../offmap_vr/om_ships/salamander.dm"
@@ -592,14 +610,13 @@
 //////////////////////////////////////////////////////////////////////////////
 //Capsule deployed ships
 #include "../offmap_vr/om_ships/shelter_5.dm"
-#include "../offmap_vr/om_ships/shelter_6.dm"
 
 //////////////////////////////////////////////////////////////////////////////
 //Offmap Spawn Locations
 #include "../offmap_vr/talon/talon_v2.dm"
 #include "../offmap_vr/talon/talon_v2_areas.dm"
 
-#if MAP_TEST
+#ifdef MAP_TEST
 #include "../offmap_vr/talon/talon_v2.dmm"
 #endif
 

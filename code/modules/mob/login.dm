@@ -18,10 +18,10 @@
 						tgui_alert_async(usr, "You appear to have logged in with another key this round, which is not permitted. Please contact an administrator if you believe this message to be in error.")
 				if(matches)
 					if(M.client)
-						message_admins("[span_red("<B>Notice: </B>")][span_blue("[key_name_admin(src)] has the same [matches] as [key_name_admin(M)].")]", 1)
+						message_admins("[span_red(span_bold("Notice:"))] [span_blue("[key_name_admin(src)] has the same [matches] as [key_name_admin(M)].")]", 1)
 						log_adminwarn("Notice: [key_name(src)] has the same [matches] as [key_name(M)].")
 					else
-						message_admins("[span_red("<B>Notice: </B>")][span_blue("[key_name_admin(src)] has the same [matches] as [key_name_admin(M)] (no longer logged in). ")]", 1)
+						message_admins("[span_red(span_bold("Notice:"))] [span_blue("[key_name_admin(src)] has the same [matches] as [key_name_admin(M)] (no longer logged in). ")]", 1)
 						log_adminwarn("Notice: [key_name(src)] has the same [matches] as [key_name(M)] (no longer logged in).")
 
 /mob/Login()
@@ -63,12 +63,12 @@
 	recalculate_vis()
 
 	// AO support
-	var/ao_enabled = client.is_preference_enabled(/datum/client_preference/ambient_occlusion)
+	var/ao_enabled = client.prefs?.read_preference(/datum/preference/toggle/ambient_occlusion)
 	plane_holder.set_ao(VIS_OBJS, ao_enabled)
 	plane_holder.set_ao(VIS_MOBS, ao_enabled)
 
 	// Status indicators
-	var/status_enabled = client.is_preference_enabled(/datum/client_preference/status_indicators)
+	var/status_enabled = client.prefs?.read_preference(/datum/preference/toggle/status_indicators)
 	plane_holder.set_vis(VIS_STATUS, status_enabled)
 
 	//set macro to normal incase it was overriden (like cyborg currently does)
@@ -83,4 +83,5 @@
 
 	if(cloaked && cloaked_selfimage)
 		client.images += cloaked_selfimage
+	client.init_verbs()
 	SEND_SIGNAL(src, COMSIG_MOB_CLIENT_LOGIN, client)

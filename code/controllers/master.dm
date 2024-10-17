@@ -141,7 +141,7 @@ GLOBAL_REAL(Master, /datum/controller/master) = new
 				BadBoy.critfail()
 		if(msg)
 			log_game(msg)
-			message_admins("<span class='boldannounce'>[msg]</span>")
+			message_admins(span_boldannounce("[msg]"))
 			log_world(msg)
 
 	if (istype(Master.subsystems))
@@ -152,7 +152,7 @@ GLOBAL_REAL(Master, /datum/controller/master) = new
 		current_runlevel = Master.current_runlevel
 		StartProcessing(10)
 	else
-		to_world("<span class='boldannounce'>The Master Controller is having some issues, we will need to re-initialize EVERYTHING</span>")
+		to_world(span_boldannounce("The Master Controller is having some issues, we will need to re-initialize EVERYTHING"))
 		Initialize(20, TRUE)
 
 
@@ -170,7 +170,7 @@ GLOBAL_REAL(Master, /datum/controller/master) = new
 	if(init_sss)
 		init_subtypes(/datum/controller/subsystem, subsystems)
 
-	to_chat(world, "<span class='boldannounce'>MC: Initializing subsystems...</span>")
+	to_chat(world, span_boldannounce("MC: Initializing subsystems..."))
 
 	// Sort subsystems by init_order, so they initialize in the correct order.
 	sortTim(subsystems, GLOBAL_PROC_REF(cmp_subsystem_init))
@@ -187,7 +187,7 @@ GLOBAL_REAL(Master, /datum/controller/master) = new
 	var/time = (REALTIMEOFDAY - start_timeofday) / 10
 
 	var/msg = "MC: Initializations complete within [time] second[time == 1 ? "" : "s"]!"
-	to_chat(world, "<span class='boldannounce'>[msg]</span>")
+	to_chat(world, span_boldannounce("[msg]"))
 	log_world(msg)
 
 	if (!current_runlevel)
@@ -278,7 +278,7 @@ GLOBAL_REAL(Master, /datum/controller/master) = new
 	//(higher subsystems will be sooner in the queue, adding them later in the loop means we don't have to loop thru them next queue add)
 	sortTim(tickersubsystems, GLOBAL_PROC_REF(cmp_subsystem_priority))
 	for(var/I in runlevel_sorted_subsystems)
-		sortTim(runlevel_sorted_subsystems, GLOBAL_PROC_REF(cmp_subsystem_priority))
+		sortTim(I, GLOBAL_PROC_REF(cmp_subsystem_priority))
 		I += tickersubsystems
 
 	var/cached_runlevel = current_runlevel
@@ -582,18 +582,20 @@ GLOBAL_REAL(Master, /datum/controller/master) = new
 
 
 
-/datum/controller/master/stat_entry()
+/datum/controller/master/stat_entry(msg)
 	if(!statclick)
 		statclick = new/obj/effect/statclick/debug(null, "Initializing...", src)
 
-	stat("Byond:", "(FPS:[world.fps]) (TickCount:[world.time/world.tick_lag]) (TickDrift:[round(Master.tickdrift,1)]([round((Master.tickdrift/(world.time/world.tick_lag))*100,0.1)]%))")
-	stat("Master Controller:", statclick.update("(TickRate:[Master.processing]) (Iteration:[Master.iteration])"))
+	msg = "Byond: (FPS:[world.fps]) (TickCount:[world.time/world.tick_lag]) (TickDrift:[round(Master.tickdrift,1)]([round((Master.tickdrift/(world.time/world.tick_lag))*100,0.1)]%))"
+	msg += "Master Controller: [statclick.update("(TickRate:[Master.processing]) (Iteration:[Master.iteration])")]"
+
+	return msg
 
 /datum/controller/master/StartLoadingMap(var/quiet = TRUE)
 	if(map_loading)
-		admin_notice("<span class='danger'>Another map is attempting to be loaded before first map released lock.  Delaying.</span>", R_DEBUG)
+		admin_notice(span_danger("Another map is attempting to be loaded before first map released lock.  Delaying."), R_DEBUG)
 	else if(!quiet)
-		admin_notice("<span class='danger'>Map is now being built.  Locking.</span>", R_DEBUG)
+		admin_notice(span_danger("Map is now being built.  Locking."), R_DEBUG)
 
 	//disallow more than one map to load at once, multithreading it will just cause race conditions
 	while(map_loading)
@@ -605,7 +607,7 @@ GLOBAL_REAL(Master, /datum/controller/master) = new
 
 /datum/controller/master/StopLoadingMap(var/quiet = TRUE)
 	if(!quiet)
-		admin_notice("<span class='danger'>Map is finished.  Unlocking.</span>", R_DEBUG)
+		admin_notice(span_danger("Map is finished.  Unlocking."), R_DEBUG)
 	map_loading = FALSE
 	for(var/datum/controller/subsystem/SS as anything in subsystems)
 		SS.StopLoadingMap()

@@ -113,7 +113,7 @@
 	if(issmall(M))
 		removed *= 2
 
-	var/strength_mod = 3 * M.species.chem_strength_alcohol //Alcohol is 3x stronger when injected into the veins.
+	var/strength_mod = 3 //Alcohol is 3x stronger when injected into the veins.
 	if(!strength_mod)
 		return
 
@@ -121,19 +121,19 @@
 		M.add_chemical_effect(CE_ALCOHOL, 1)
 		var/effective_dose = dose * strength_mod * (1 + volume/60) //drinking a LOT will make you go down faster
 
-		if(effective_dose >= strength) // Early warning
+		if(effective_dose >= (strength * M.species.chem_strength_alcohol)) // Early warning
 			M.make_dizzy(18) // It is decreased at the speed of 3 per tick
-		if(effective_dose >= strength * 2) // Slurring
+		if(effective_dose >= (strength * M.species.chem_strength_alcohol) * 2) // Slurring
 			M.slurring = max(M.slurring, 90)
-		if(effective_dose >= strength * 3) // Confusion - walking in random directions
+		if(effective_dose >= (strength * M.species.chem_strength_alcohol) * 3) // Confusion - walking in random directions
 			M.Confuse(60)
-		if(effective_dose >= strength * 4) // Blurry vision
+		if(effective_dose >= (strength * M.species.chem_strength_alcohol) * 4) // Blurry vision
 			M.eye_blurry = max(M.eye_blurry, 30)
-		if(effective_dose >= strength * 5) // Drowsyness - periodically falling asleep
+		if(effective_dose >= (strength * M.species.chem_strength_alcohol) * 5) // Drowsyness - periodically falling asleep
 			M.drowsyness = max(M.drowsyness, 60)
-		if(effective_dose >= strength * 6) // Toxic dose
+		if(effective_dose >= (strength * M.species.chem_strength_alcohol) * 6) // Toxic dose
 			M.add_chemical_effect(CE_ALCOHOL_TOXIC, toxicity*3)
-		if(effective_dose >= strength * 7) // Pass out
+		if(effective_dose >= (strength * M.species.chem_strength_alcohol) * 7) // Pass out
 			M.Paralyse(60)
 			M.Sleeping(90)
 
@@ -160,26 +160,26 @@
 	if(M.isSynthetic() && M.nutrition < 500 && M.species.robo_ethanol_proc)
 		M.adjust_nutrition(round(max(0,ep_base_power - strength) * removed)/ep_final_mod)	//the stronger it is, the more juice you gain
 
-	var/effective_dose = dose * M.species.chem_strength_alcohol
+	var/effective_dose = dose
 	if(!effective_dose)
 		return
 
 	if(M.species.robo_ethanol_drunk || !(M.isSynthetic()))
 		M.add_chemical_effect(CE_ALCOHOL, 1)
 
-		if(effective_dose >= strength) // Early warning
+		if(effective_dose >= (strength * M.species.chem_strength_alcohol)) // Early warning
 			M.make_dizzy(6) // It is decreased at the speed of 3 per tick
-		if(effective_dose >= strength * 2) // Slurring
+		if(effective_dose >= (strength * M.species.chem_strength_alcohol) * 2) // Slurring
 			M.slurring = max(M.slurring, 30)
-		if(effective_dose >= strength * 3) // Confusion - walking in random directions
+		if(effective_dose >= (strength * M.species.chem_strength_alcohol) * 3) // Confusion - walking in random directions
 			M.Confuse(20)
-		if(effective_dose >= strength * 4) // Blurry vision
+		if(effective_dose >= (strength * M.species.chem_strength_alcohol) * 4) // Blurry vision
 			M.eye_blurry = max(M.eye_blurry, 10)
-		if(effective_dose >= strength * 5) // Drowsyness - periodically falling asleep
+		if(effective_dose >= (strength * M.species.chem_strength_alcohol) * 5) // Drowsyness - periodically falling asleep
 			M.drowsyness = max(M.drowsyness, 20)
-		if(effective_dose >= strength * 6) // Toxic dose
+		if(effective_dose >= (strength * M.species.chem_strength_alcohol) * 6) // Toxic dose
 			M.add_chemical_effect(CE_ALCOHOL_TOXIC, toxicity)
-		if(effective_dose >= strength * 7) // Pass out
+		if(effective_dose >= (strength * M.species.chem_strength_alcohol) * 7) // Pass out
 			M.Paralyse(20)
 			M.Sleeping(30)
 
@@ -196,20 +196,20 @@
 
 /datum/reagent/ethanol/touch_obj(var/obj/O)
 	..()
-	if(istype(O, /obj/item/weapon/paper))
-		var/obj/item/weapon/paper/paperaffected = O
+	if(istype(O, /obj/item/paper))
+		var/obj/item/paper/paperaffected = O
 		paperaffected.clearpaper()
 		to_chat(usr, "The solution dissolves the ink on the paper.")
 		return
-	if(istype(O, /obj/item/weapon/book))
+	if(istype(O, /obj/item/book))
 		if(volume < 5)
 			return
-		if(istype(O, /obj/item/weapon/book/tome))
-			to_chat(usr, "<span class='notice'>The solution does nothing. Whatever this is, it isn't normal ink.</span>")
+		if(istype(O, /obj/item/book/tome))
+			to_chat(usr, span_notice("The solution does nothing. Whatever this is, it isn't normal ink."))
 			return
-		var/obj/item/weapon/book/affectedbook = O
+		var/obj/item/book/affectedbook = O
 		affectedbook.dat = null
-		to_chat(usr, "<span class='notice'>The solution dissolves the ink on the book.</span>")
+		to_chat(usr, span_notice("The solution dissolves the ink on the book."))
 	return
 
 /datum/reagent/fluorine
@@ -364,11 +364,11 @@
 		var/mob/living/carbon/human/H = M
 		if(H.head)
 			if(H.head.unacidable)
-				to_chat(H, "<span class='danger'>Your [H.head] protects you from the acid.</span>")
+				to_chat(H, span_danger("Your [H.head] protects you from the acid."))
 				remove_self(volume)
 				return
 			else if(removed > meltdose)
-				to_chat(H, "<span class='danger'>Your [H.head] melts away!</span>")
+				to_chat(H, span_danger("Your [H.head] melts away!"))
 				qdel(H.head)
 				H.update_inv_head(1)
 				H.update_hair(1)
@@ -378,11 +378,11 @@
 
 		if(H.wear_mask)
 			if(H.wear_mask.unacidable)
-				to_chat(H, "<span class='danger'>Your [H.wear_mask] protects you from the acid.</span>")
+				to_chat(H, span_danger("Your [H.wear_mask] protects you from the acid."))
 				remove_self(volume)
 				return
 			else if(removed > meltdose)
-				to_chat(H, "<span class='danger'>Your [H.wear_mask] melts away!</span>")
+				to_chat(H, span_danger("Your [H.wear_mask] melts away!"))
 				qdel(H.wear_mask)
 				H.update_inv_wear_mask(1)
 				H.update_hair(1)
@@ -392,10 +392,10 @@
 
 		if(H.glasses)
 			if(H.glasses.unacidable)
-				to_chat(H, "<span class='danger'>Your [H.glasses] partially protect you from the acid!</span>")
+				to_chat(H, span_danger("Your [H.glasses] partially protect you from the acid!"))
 				removed /= 2
 			else if(removed > meltdose)
-				to_chat(H, "<span class='danger'>Your [H.glasses] melt away!</span>")
+				to_chat(H, span_danger("Your [H.glasses] melt away!"))
 				qdel(H.glasses)
 				H.update_inv_glasses(1)
 				removed -= meltdose / 2
@@ -427,7 +427,7 @@
 		var/obj/effect/decal/cleanable/molten_item/I = new/obj/effect/decal/cleanable/molten_item(O.loc)
 		I.desc = "Looks like this was \an [O] some time ago."
 		for(var/mob/M in viewers(5, O))
-			to_chat(M, "<span class='warning'>\The [O] melts.</span>")
+			to_chat(M, span_warning("\The [O] melts."))
 		qdel(O)
 		remove_self(meltdose) // 10 units of acid will not melt EVERYTHING on the tile
 

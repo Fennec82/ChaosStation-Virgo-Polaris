@@ -6,21 +6,28 @@
 	name = "Clothing"
 	sort_order = 4
 
-/datum/category_item/player_setup_item/general/equipment/load_character(var/savefile/S)
-	S["all_underwear"] >> pref.all_underwear
-	S["all_underwear_metadata"] >> pref.all_underwear_metadata
-	S["backbag"]	>> pref.backbag
-	S["pdachoice"]	>> pref.pdachoice
-	S["communicator_visibility"]	>> pref.communicator_visibility
-	S["ringtone"]	>> pref.ringtone
+/datum/category_item/player_setup_item/general/equipment/load_character(list/save_data)
+	pref.all_underwear				= check_list_copy(save_data["all_underwear"])
+	pref.all_underwear_metadata		= check_list_copy(save_data["all_underwear_metadata"])
+	for(var/i in pref.all_underwear_metadata)
+		pref.all_underwear_metadata[i] = path2text_list(pref.all_underwear_metadata[i])
+	pref.backbag					= save_data["backbag"]
+	pref.pdachoice					= save_data["pdachoice"]
+	pref.communicator_visibility	= save_data["communicator_visibility"]
+	pref.ringtone					= save_data["ringtone"]
+	pref.shoe_hater					= save_data["shoe_hater"]
 
-/datum/category_item/player_setup_item/general/equipment/save_character(var/savefile/S)
-	S["all_underwear"] << pref.all_underwear
-	S["all_underwear_metadata"] << pref.all_underwear_metadata
-	S["backbag"]	<< pref.backbag
-	S["pdachoice"]	<< pref.pdachoice
-	S["communicator_visibility"]	<< pref.communicator_visibility
-	S["ringtone"]	<< pref.ringtone
+/datum/category_item/player_setup_item/general/equipment/save_character(list/save_data)
+	save_data["all_underwear"]				= pref.all_underwear
+	var/list/underwear = list()
+	for(var/i in pref.all_underwear_metadata)
+		underwear[i] = check_list_copy(pref.all_underwear_metadata[i])
+	save_data["all_underwear_metadata"] 	= underwear
+	save_data["backbag"]					= pref.backbag
+	save_data["pdachoice"]					= pref.pdachoice
+	save_data["communicator_visibility"]	= pref.communicator_visibility
+	save_data["ringtone"]					= pref.ringtone
+	save_data["shoe_hater"] 				= pref.shoe_hater
 
 var/global/list/valid_ringtones = list(
 		"beep",
@@ -106,7 +113,7 @@ var/global/list/valid_ringtones = list(
 
 /datum/category_item/player_setup_item/general/equipment/content()
 	. = list()
-	. += "<b>Equipment:</b><br>"
+	. += span_bold("Equipment:") + "<br>"
 	for(var/datum/category_group/underwear/UWC in global_underwear.categories)
 		var/item_name = pref.all_underwear[UWC.name] ? pref.all_underwear[UWC.name] : "None"
 		. += "[UWC.name]: <a href='?src=\ref[src];change_underwear=[UWC.name]'><b>[item_name]</b></a>"
@@ -120,6 +127,7 @@ var/global/list/valid_ringtones = list(
 	. += "PDA Type: <a href='?src=\ref[src];change_pda=1'><b>[pdachoicelist[pref.pdachoice]]</b></a><br>"
 	. += "Communicator Visibility: <a href='?src=\ref[src];toggle_comm_visibility=1'><b>[(pref.communicator_visibility) ? "Yes" : "No"]</b></a><br>"
 	. += "Ringtone (leave blank for job default): <a href='?src=\ref[src];set_ringtone=1'><b>[pref.ringtone]</b></a><br>"
+	. += "Spawn With Shoes:<a href='?src=\ref[src];toggle_shoes=1'><b>[(pref.shoe_hater) ? "No" : "Yes"]</b></a><br>" //RS Addition
 
 	return jointext(.,null)
 
@@ -188,5 +196,10 @@ var/global/list/valid_ringtones = list(
 		else
 			pref.ringtone = choice
 		return TOPIC_REFRESH
+	else if(href_list["toggle_shoes"])	//RS ADD START
+		if(CanUseTopic(user))
+			pref.shoe_hater = !pref.shoe_hater
+			return TOPIC_REFRESH
+			//RS ADD END
 
 	return ..()

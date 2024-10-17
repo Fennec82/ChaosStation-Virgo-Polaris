@@ -29,13 +29,13 @@
 
 	var/char_name = tgui_alert(src, "Spawn mob with their character name?", "Mob name", list("Yes", "No", "Cancel"))
 	var/name = 0
-	if(char_name == "Cancel")
+	if(!char_name || char_name == "Cancel")
 		return
 	if(char_name == "Yes")
 		name = 1
 	var/vorgans = tgui_alert(src, "Spawn mob with their character's vore organs and prefs?", "Vore organs", list("Yes", "No", "Cancel"))
 	var/organs
-	if(vorgans == "Cancel")
+	if(!vorgans || vorgans == "Cancel")
 		return
 	if(vorgans == "Yes")
 		organs = 1
@@ -63,6 +63,8 @@
 	new_mob.key = picked_client.key //Finally put them in the mob
 	if(organs)
 		new_mob.copy_from_prefs_vr()
+		if(LAZYLEN(new_mob.vore_organs))
+			new_mob.vore_selected = new_mob.vore_organs[1]
 
 	log_admin("[key_name_admin(src)] has spawned [new_mob.key] as mob [new_mob.type].")
 	message_admins("[key_name_admin(src)] has spawned [new_mob.key] as mob [new_mob.type].", 1)
@@ -95,7 +97,7 @@
 		if(M.z == pos_z)
 			to_chat(M, msg)
 	log_admin("ZNarrate: [key_name(usr)] : [msg]")
-	message_admins(span_blue("<B> ZNarrate: [key_name_admin(usr)] : [msg]<BR></B>"), 1)
+	message_admins(span_blue(span_bold(" ZNarrate: [key_name_admin(usr)] : [msg]<BR>")), 1)
 	feedback_add_details("admin_verb","GLNA") //If you are copy-pasting this, ensure the 2nd parameter is unique to the new proc!
 
 /client/proc/toggle_vantag_hud(var/mob/target as mob)

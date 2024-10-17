@@ -4,6 +4,7 @@
 /mob/verb/whisper(message as text)
 	set name = "Whisper"
 	set category = "IC"
+	set hidden = 1
 	//VOREStation Addition Start
 	if(forced_psay)
 		psay(message)
@@ -15,18 +16,21 @@
 /mob/verb/say_verb(message as text)
 	set name = "Say"
 	set category = "IC"
+	set hidden = 1
 	//VOREStation Addition Start
 	if(forced_psay)
 		psay(message)
 		return
 	//VOREStation Addition End
 
-	set_typing_indicator(FALSE)
+	client?.stop_thinking()
 	usr.say(message)
 
 /mob/verb/me_verb(message as message)
 	set name = "Me"
 	set category = "IC"
+	set desc = "Emote to nearby people (and your pred/prey)"
+	set hidden = 1
 
 	if(say_disabled)	//This is here to try to identify lag problems
 		to_chat(usr, span_red("Speech is currently admin-disabled."))
@@ -45,7 +49,7 @@
 	message = sanitize_or_reflect(message,src) //VOREStation Edit - Reflect too-long messages (within reason)
 	//VOREStation Edit End
 
-	set_typing_indicator(FALSE)
+	client?.stop_thinking()
 	if(use_me)
 		custom_emote(usr.emote_type, message)
 	else
@@ -53,7 +57,7 @@
 
 /mob/proc/say_dead(var/message)
 	if(say_disabled)	//This is here to try to identify lag problems
-		to_chat(usr, "<span class='danger'>Speech is currently admin-disabled.</span>")
+		to_chat(usr, span_danger("Speech is currently admin-disabled."))
 		return
 
 	if(!client)
@@ -61,16 +65,16 @@
 
 	if(!client.holder)
 		if(!config.dsay_allowed)
-			to_chat(src, "<span class='danger'>Deadchat is globally muted.</span>")
+			to_chat(src, span_danger("Deadchat is globally muted."))
 			return
 
-	if(!is_preference_enabled(/datum/client_preference/show_dsay))
-		to_chat(usr, "<span class='danger'>You have deadchat muted.</span>")
+	if(!client?.prefs?.read_preference(/datum/preference/toggle/show_dsay))
+		to_chat(usr, span_danger("You have deadchat muted."))
 		return
 
 	message = encode_html_emphasis(message)
 
-	say_dead_direct("[pick("complains","moans","whines","laments","blubbers")], <span class='message'>\"[message]\"</span>", src)
+	say_dead_direct("[pick("complains","moans","whines","laments","blubbers")], " + span_message("\"[message]\""), src)
 
 /mob/proc/say_understands(var/mob/other, var/datum/language/speaking = null)
 	if(stat == DEAD)

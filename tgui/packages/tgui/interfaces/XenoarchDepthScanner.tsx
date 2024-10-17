@@ -21,7 +21,7 @@ export const XenoarchDepthScanner = (props) => {
   const { current, positive_locations } = data;
 
   return (
-    <Window width={300} height={500} resizable>
+    <Window width={300} height={500}>
       <Window.Content scrollable>
         {(Object.keys(current).length && (
           <Section
@@ -31,10 +31,12 @@ export const XenoarchDepthScanner = (props) => {
                 color="bad"
                 icon="trash"
                 confirmIcon="trash"
-                content="Delete Entry"
                 onClick={() => act('clear', { index: current.index })}
-              />
-            }>
+              >
+                Delete Entry
+              </Button.Confirm>
+            }
+          >
             <LabeledList>
               <LabeledList.Item label="Time">{current.time}</LabeledList.Item>
               <LabeledList.Item label="Coords">
@@ -63,16 +65,19 @@ export const XenoarchDepthScanner = (props) => {
               color="red"
               icon="trash"
               confirmIcon="trash"
-              content="Delete All"
               onClick={() => act('clear')}
-            />
-          }>
+            >
+              Delete All
+            </Button.Confirm>
+          }
+        >
           {(positive_locations.length &&
             positive_locations.map((loc) => (
               <Button
                 key={loc.index}
                 icon="eye"
-                onClick={() => act('select', { select: loc.index })}>
+                onClick={() => act('select', { select: loc.index })}
+              >
                 {loc.time}, {loc.coords}
               </Button>
             ))) || <Box color="bad">No traces found.</Box>}
